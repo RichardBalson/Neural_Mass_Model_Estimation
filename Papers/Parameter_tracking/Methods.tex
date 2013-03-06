@@ -1,0 +1,1295 @@
+\section{Methods}
+
+\textbf{This is an outline for what I want to say, see each sentence as a dot point.}
+
+To test the convergence of the UKF for the neural mass model it is used to estimate parameters from simulated data using the model.
+
+\red{The neural mass model considered is described by Wendling.}
+	Consists of two primary structures. Kernel, sigmoid and function, delayed spike.
+	Function described by Freeman. Kernel described by Lopez. 
+
+\red{Model has numerous parameters that are considered to be stationary.}
+	This includes the connectivity constants, synaptic delays and maximum firing rate for each population.
+
+For this study estimation of synaptic gains will be considered.
+
+The model is described by the following set of equations, structure shown in figure...
+
+The input to this model is considered to be stochastic. Therefore stochastic differential equation theory needs to be applied when simulating the model.
+
+The updated discrete time equations using euler mariyama method are...
+
+The estimation method used was originally described by Kalman, and later developed by Ulah for nonlinear parameter estimation.
+
+The method developed by Ulah makes use of two structures, and unscented transform to allow the nonlinearity of the model to be retained and the kalman update process to update the states and parameters based on observations.
+
+To allow for parameter estimation the parameters of interest are considered to be slow states. That being they vary slowly compared to the model states.
+
+These states are therefore augmented to the normal state matrix.
+
+The unscented transform is described by the following set of equations.
+
+The variable describes the standard deviation of the parameter.
+
+The square root function is a matrix square root, which is achieved using the cholesky matrix decomposition.
+
+The resultant covariance and mean and then described using the following set of equations.
+
+Note that similar to the unscented transform there are weights assigned to particular iterations of the unscented process. This allows the process to specify ore or less weight on the propogation of the mean through the model.
+
+Once the covariances and means are determined the model states are updated using the standard kalman filter correction step. 
+
+The equations for the kalman update process are.
+
+Here the variable describes the expected observation noise, and variable y the uncertainty in the model.
+
+Here the observation is the output of the simulated signal.
+
+This uncertainty in the model is used to account for errors induced due to model assumptions.
+
+To determine the accuracy of the estimation process the normalised mean square error of the parameter and state estimates are determined.
+
+This estimation procedure is dependant on the original guess for the model parameters and states.
+
+To make the distance between the actual and initial guess of the state estimates the initial guess is set to the middle of the physiological range specified for each parameter. Standard deviation set to encompass the entire physiological range.
+
+A similar process is done for state guess and standard deviation, equations are...
+
+Model uncertianty is set low. And increased when parameters vary within a single simulation. This allows the parameters to track as their standard deviation decreases over periods when the model tracks well and if uncertainty is low these parameters will not be able to track the actual values precise;y.
+
+To determine the accuracy of the estimation procedure, the initial parameter guess is altered based on percentage from the actual.
+
+Observation noise is increased to determine limits on noise allowable for the model.
+
+Model parameters simulated are altered to determine the effect of the parameters on estimation.
+
+Model parameters are varied within single simulation to determine whether the estimaton procedure can track the varying parameters.
+
+
+%Theoretical aspects that are required in order to evaluate the specified research hypotheses will be discussed. Theoretical aspects of this study include simulation and estimation of the extended neural model, which are required in order to determine the effects that stimulation has on the brain, as well as examine how brain activity alters as a seizure is manifesting.  
+
+%Once the experimental work is completed, it needs to be analysed for hypotheses one and three. The initial aspect of this is validating whether the computational model decided upon is able to replicate experimental data obtained. In order to do this, the computational model needs to be simulated. Once the model has been validated, it is necessary to determine whether the model parameters change as a seizure approaches and as stimulation is applied. This is achieved by estimating parameters of the computational model. Both the method for simulation and estimation will be discussed in the section.
+
+%In this section, particular emphasis will be placed on the models that will be used, simulating them and estimating their parameters. Two different models will be looked at: the neural mass model~\citep{jansen1995electroencephalogram} and the extended neural mass model~\citep{wendling2002epileptic}.
+
+%The extended neural mass model is an extension of a model originally proposed by Jansen and Rit in 1995. In this section both the original extended and the neural mass model will be discussed. In particular, the methods required in order to estimate both of these models will be discussed, and the results from estimating model parameters based on simulated data will be shown.
+%
+%\section{Neural Mass Model}
+%\label{ssec: Neural}
+%
+%The neural mass model describes activity of localised cortical regions and is described fully in \cite{jansen1995electroencephalogram}.It is made up of two primary elements: a post synaptic potential (PSP) to firing rate function, and a firing rate to PSP kernel. These two elements are represented by two sets of mathematical equations. 
+%
+%The relationship between the membrane potential and the firing rate is described as a sigmoid \citep{freemanelectrical}:
+%\begin{align}
+%\label{eqn: sigmoid}
+%S(v) &= \frac{2\epsilon_{0}}{1+e^{r(v_{0}-v)}},
+%\end{align}
+%where $S(v)$ is the output of the system in Hertz. The constants in the system, $2\epsilon_{0}$, r and $v_{0}$, indicate the maximum firing rate, the steepness, and the fifty percent firing rate PSP for the sigmoid, respectively. The input to the system is the PSP in millivolts. The function $S(v)$ is depicted in Figure~\ref{fig: PSP}. 
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics[width=0.60\textwidth]{jpg/Neural_Mass_Model.jpg}
+%	\caption[Neural Mass Model Graphical Description]{Graphical description of the neural mass model where excitatory connections are represented by black lines and inhibitory connections be red lines.}
+%	\label{fig: Neural_Mass_Model}
+%\end{figure}
+%
+%
+%\begin{figure}[htb]
+%	\centering
+%		\includegraphics{../Images/pdf/PSP2FR.pdf}
+%	\caption[PSP to Firing Rate Function]{PSP to firing rate function.}
+%	\label{fig: PSP}
+%\end{figure}
+%
+%The equations for the firing rate to PSP kernel are:
+%\begin{align}
+%\label{eqn: FR2PSP1}
+%\dot{x}_{1}&= x_{2}\\
+%\label{eqn: FR2PSP2}
+%\dot{x}_{2}&=Kkz_{in}-2kx_{2}-k^{2}x_{1},
+%\end{align}
+%where $x_{1}$ is the output of the kernel, $z_{in}$ is the input to the system, \textsl{K} represents the synaptic gain of the kernel and \textsl{k} is the time constant. 
+%
+%The gain affects the peak of the system response and the time constant specifies the time taken to reach this peak. If the gain is increased, the maximum output potential is increased, the opposite of which is also true. Increasing the time constant decreases the time taken for the kernel to reach its peak; the opposite happens if the time constant is decreased.
+%
+%In the neural mass model, \textsl{K} is replaced by \textsl{A} and \textsl{B}, which indicate excitatory and inhibitory synaptic gains, respectively. Likewise, \textsl{k}, is replaced by $a$ and $b$, which represent the time constants for excitatory and inhibitory activity, respectively. 
+%
+%The impulse response of the kernel used to convert firing rates to PSP potentials is shown in Figure~\ref{fig: FR2PSPKernel}. The inhibitory response is shown as negative, as this will be the net effect it has on the system.
+%
+%\begin{figure}[htb]
+%	\centering
+%		\includegraphics{../Images/pdf/FR2PSP.pdf}
+%	\caption[Firing rate to PSP kernel]{The firing rate to post synaptic potential kernel impulse responses. The red, blue and green line graphs indicate excitatory, slow inhibitory and fast inhibitory impulse responses, respectively.}
+%\label{fig: FR2PSPKernel}
+%\end{figure}
+%
+%\subsection{Model Description}
+%
+%The equations that describe the model, with reference to Figure~\ref{fig: Jansen}, are~\citep{jansen1995electroencephalogram}: \begin{align}
+%\label{eqn: JRM1}
+%\dot{x}_{1}&= x_{4}\\
+%\dot{x}_{4}&=AaS(x_{2}-x_{3})-2ax_{4}-a^{2}x_{1}\\
+%\dot{x}_{2}&= x_{5}\\
+%\label{eqn: JRM4}
+%\dot{x}_{5}&=Aa(n(t) +C_{2}S(C_{1}x_{1}))-2ax_{5}-a^{2}x_{2}\\
+%\dot{x}_{3}&= x_{6}\\
+%\label{eqn: JRM6}
+%\dot{x}_{6}&=BbC_{4}S(C_{3}x_{1})-2bx_{6}-b^{2}x_{3},
+%\end{align}
+%where \textsl{A}, \textsl{B}, $a$ and $b$ are described in Section~\ref{ssec: Neural}. The connectivity constants, $C_{1}-C_{4}$, represent the connections between different neural populations. The effect of the rest of the brain on this cortical column is modeled by $n(t)$, which is a frequency parameter. The model in Equations~\ref{eqn: JRM1}-\ref{eqn: JRM6} is valid if $n(t)$ is stationary. However, $n(t)$ is modeled as Gaussian random noise, which is stochastic, with a mean and variance specified. The equation for $n(t)$ is: \begin{align}
+%\label{eqn: Noise}
+%n(t) = \mu + N(0,\sigma),
+%\end{align} where $N(0,\sigma)$ represents a Gaussian distribution with zero mean and variance $\sigma$.
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics[width=0.8\textwidth]{../Images/jpg/Jansen_Model_Description.jpg}
+%	\caption[Neural Mass Model Description]{Neural mass model description specifying how different neural populations are connected. Where $S(v)$ specifies the function for the post synaptic potential to firing rate, and $H(s)$ specifies the transfer function of specific neural populations, with a firing rate as input and a post synaptic potential as output. Transfer functions with $A$ and $B$ represent excitatory and inhibitory populations, respectively. The input $n(t)$ specifies the connections from other neural masses to the modeled mass. $C1-C4$ are measures of connectivity strength between neural populations in the cortical column.}
+%	\label{fig: Jansen}
+%\end{figure}
+%
+%Examining Equation~\ref{eqn: Noise}, it is clear that the system being described is stochastic in nature, and cannot be handled using standard integration techniques. In order to deal with the stochasticity of the system, stochastic differential equation (SDE) theory needs to be applied. 
+%
+%Equations~\ref{eqn: JRM1}-\ref{eqn: JRM6} can be described by a Wiener process~\citep{saito1993simulation}, and the defining equations for the model are: \begin{align}
+%\label{eqn: JRMS1}
+%dx_{1}&= x_{4}dt\\
+%dx_{4}&=(AaS(x_{2}-x_{3})-2ax_{4}-a^{2}x_{1})dt\\
+%dx_{2}&= x_{5}dt\\
+%\label{eqn: JRMS4}
+%dx_{5}&=(Aa(\mu +C_{2}S(C_{1}x_{1}))-2ax_{5}-a^{2}x_{2})dt+AaN(0,\sigma)dW\\
+%dx_{3}&= x_{6}dt\\
+%\label{eqn: JRMS6}
+%dx_{6}&=(BbC_{4}S(C_{3}x_{1})-2bx_{6}-b^{2}x_{3})dt.
+%\end{align}
+%
+%Equation~\ref{eqn: JRMS4} is created by substituting Equation~\ref{eqn: Noise} into Equation~\ref{eqn: JRM4}. This is done in order to specify the Wiener process $dW$, which only affects the uncertain part of the input, the variance. 
+%
+%The output of the system is demonstrated in Figure~\ref{fig: Jansen}, and is given by: \begin{align}
+%x_{out} &= x_{2}-x_{3}.
+%\end{align}
+%The output indicates the effect of the excitatory and inhibitory populations on PNs within the column. Here, $x_{2}$ indicates the excitatory effect and $x_{3}$ the inhibitory effect of interneurons on PCs.
+%
+%When considering the parameters of the neural mass model, their values are as specified in the paper originally describing the model~\citep{jansen1995electroencephalogram}. These parameter values are shown in Table~\ref{tab: JRP}. For simulation purposes the values of \textsl{A} and \textsl{B} will be altered, all other parameters are held constant.
+%
+%\singlespacing
+%\small
+%\begin{center}
+%	\begin{table}
+%			\caption[Model Parameters for the Neural Mass Model]{Model Parameters for the Neural Mass Model. Terms in brackets indicate the direction in which the constant affects the system. Here PN, EIN, SIIN and FIIN represent populations of PNs, excitatory interneurons, slow inhibitory interneurons and fast inhibitory interneurons, respectively.}
+%		\begin{tabular}{||p{4cm}|p{6cm}|p{1.5cm}|p{1.2cm}||}\hline
+%			 \textsc{Model parameter}  & \textsc{Physical description} & \textsc{Value} & \textsc{Units}  \\\hline\hline
+%			 $a$ & Time constant for excitatory neurons & 100 & $s^{-1}$\\\hline
+%			 $b$ & Time constant for inhibitory neurons & 50 & $s^{-1}$\\\hline
+%			 $C$ & Connectivity constant & 135 & NA\\\hline
+%			 $\epsilon_{0}$ & Maximum firing rate & 2.5 & Hz \\\hline
+%			 $v_{0}$ & PSP for which 50\% firing rate is achieved & 6 & $mV^{-1}$\\\hline
+%			 $r$ & Indicates steepness of PSP to firing rate function & 0.56 & NA \\\hline
+%			 $\alpha$ & Minimum input firing rate to the cortical column, from the rest of the brain & 120 & Hz \\\hline
+%			 $\omega$	& Maximum input firing rate to the cortical column, from the rest of the brain & 320 & Hz \\\hline
+%			 $C_{1}$ & Connectivity constant (PN - EIN) & C \\\hline
+%			 $C_{2}$ & Connectivity constant (EIN + input - PN) & 0.8C \\\hline
+%			 $C_{3}$ & Connectivity constant (PN - IIN) & 0.25C  \\\hline
+%			 $C_{4}$ & Connectivity constant (IIN - PN)& 0.25C \\\hline
+%			 \textsl{A} & Gain for excitatory neurons & 3.25 & mV\\\hline
+%			 \textsl{B} & Gain for inhibitory neurons & 22 & mV\\\hline\hline
+%		\end{tabular}
+%		\label{tab: JRP}
+%	\end{table}
+%\end{center}
+%\normalsize
+%\onehalfspacing
+%	
+%
+%\section{Extended Neural Mass Model Simulations}
+%\label{ssec: Extended}
+%
+%The extended neural mass model is an extension of the model described by \cite{jansen1995electroencephalogram}. In this model inhibitory interneurons are further split into two populations. These populations are described as fast and slow inhibitory populations. The difference between these two populations is the time constants that describe them. The reason for splitting these two populations is due to observations that have shown that these two populations exist in the hippocampus~\citep{white2000networks}. Although these populations may not be physically different, the connections from the inhibitory interneurons to PNs can occur at two different locations. One near the soma of the PN population and the other at the dendrites. The connections at the soma of the PN population result in a much shorter delay, than those at the dendrites. Hence, the inhibitory populations is described at two distinct populations in order to represent this observation.
+%
+%The extended neural mass model is made up of two primary kernels: a  PSP to firing rate converter; and a firing rate to PSP converter~\citep{wendling2002epileptic}. The equations for the PSP to firing rate converter and firing rate to PSP kernel are identical to those described in the neural mass model. However, in this model, \textsl{K} in Equation~\ref{eqn: FR2PSP2} is replaced by \textsl{A}, \textsl{B} and \textsl{G}, in the model description. \textsl{A} represents the excitatory gain, \textsl{B} the slow inhibitory gain and \textsl{G} the fast inhibitory gain. Similarly \textsl{k} in Equation~\ref{eqn: FR2PSP2} is replaced by \textsl{a}, \textsl{b} and \textsl{g}, which represent the time constants for the excitatory, slow inhibitory and fast inhibitory populations respectively. From the two models, it is clear that in the extended neural mass model, fast inhibition has been added to the standard neural mass model.
+%
+%The impulse response of the three kernels that will be used to convert firing rates to PSP potentials is shown in Figure~\ref{fig: FR2PSPKernel}. The inhibitory responses are negative, as this will be their net effect on the system.
+%
+%\subsection{Model Description}
+%\label{ssec: ModelDes}
+%
+%The equations that describe the model, with reference to Figure~\ref{fig: Extended}, are~\citep{wendling2002epileptic}: \begin{align}
+%\label{eqn: wendling1}
+%dx_{1}&= x_{6}dt\\
+%dx_{6}&=(AaS(x_{2}-x_{3}-x_{4})-2ax_{6}-a^{2}x_{1})dt\\
+%dx_{2}&= x_{7}dt\\
+%dx_{7}&=(Aa(\mu +C_{2}S(C_{1}x_{1}))-2ax_{7}-a^{2}x_{2})dt + AaN(0,\sigma)dW\\
+%dx_{3}&= x_{8}dt\\
+%dx_{8}&=(BbC_{4}S(C_{3}x_{1})-2bx_{8}-b^{2}x_{3})dt\\
+%dx_{4}&= x_{9}dt\\
+%dx_{9}&=(GgC_{7}S(C_{5}*x_{1}-C_{6}x_{5})-2gx_{9}-g^{2}x_{4})dt\\
+%dx_{5}&= x_{10}dt\\
+%\label{eqn: wendling10}
+%dx_{10}&=(BbS(C_{3}x_{1})-2bx_{10}-b^{2}x_{5})dt.
+%\end{align}
+%
+%In the equations above, the connectivity constants, $C_{1}-C_{7}$, represent the connections between different neural populations. The effect of the rest of the brain on this cortical column is modeled by $n(t)$, which has been simplified by making use of Equation~\ref{eqn: Noise}. Here $dW$ represents the Wiener process. 
+%
+%The expected iEEG output of the system can be seen in Figure~\ref{fig: Extended} and is described by: \begin{align}
+%\label{eqn: WendlingOut}
+%x_{out} = x_{2}-x_{3}-x_{4}.
+%\end{align}
+%
+%The output indicates the effect of the excitatory and inhibitory populations on PNs within the column. Here $z_{2}$ indicates the excitatory effect, $z_{3}$ the slow inhibitory effect, and $z_{4}$ the fast inhibitory effect of interneurons on PNs.
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics[width = 0.9\textwidth]{../Images/jpg/Wendling_Neural_Mass_Model.jpg}
+%	\caption[Extended Neural Mass Model Description]{Extended neural mass model description specifying how different neural populations are connected, where $S(v)$ specifies the function for the post synaptic potential to firing rate and $H(s)$ specifies the transfer function of specific neural populations, with a firing rate as input and a post synaptic potential as output. Transfer functions with $A$,$B$ and $G$ represent excitatory, slow inhibitory and fast inhibitory populations, respectively. The input $n(t)$ specifies the connections from other neural masses to the modeled mass. $C1-C7$ are measures of connectivity strength between neural populations in the cortical column.}
+%	\label{fig: Extended}
+%\end{figure}
+%
+%
+%\subsubsection{Model Parameters}
+%
+%Within the model, most parameters are considered to be static. The only parameters that are considered to be dynamic in nature are the synaptic gains of the three neural population. By varying the synaptic gains of these populations, it has been shown that seizure activity can be replicated~\citep{wendling2002epileptic}. Therefore, all other parameters for this model are considered to be static.
+%
+%The static parameters in the model are: the time and connectivity constants; maximum firing rate; steepness of the sigmoid function; fifty percent firing rate PSP voltage; and the noise frequencies. These static parameters are shown in Table~\ref{tab: Static}.
+%
+%\singlespacing
+%\small
+%\begin{center}
+%	\begin{table}
+%			\caption{Static Model Parameters}
+%		\begin{tabular}{||p{4cm}|p{6cm}|p{1.5cm}|p{1.2cm}||}\hline
+%			 \textsc{Model parameter}  & \textsc{Physical description} & \textsc{Value} & \textsc{Units}  \\\hline\hline
+%			 $a$ & Time constant for excitatory neurons & 100 & $s^{-1}$\\\hline
+%			 $b$ & Time constant for slow inhibitory neurons & 50 & $s^{-1}$\\\hline
+%			 $g$ & Time constant for fast inhibitory neurons & 500 & $s^{-1}$\\\hline
+%			 $C$ & Connectivity constant & 135 & NA\\\hline
+%			 $\epsilon_{0}$ & Maximum firing rate & 2.5 & Hz \\\hline
+%			 $v_{0}$ & PSP for which 50\% firing rate is achieved & 6 & $mV^{-1}$\\\hline
+%			 $r$ & Indicates steepness of PSP to firing rate function & 0.56 & NA \\\hline
+%			 $\alpha$ & Minimum input firing rate to the cortical column, from the rest of the brain & 30 & Hz \\\hline
+%			 $\omega$	& Maximum input firing rate to the cortical column, from the rest of the brain & 150 & Hz \\\hline\hline
+%		\end{tabular}
+%		\label{tab: Static}
+%	\end{table}
+%\end{center}
+%
+%\begin{center}
+%	\begin{table}
+%			\caption[Static Model Parameters: Connectivity]{Static model parameters: Connectivity. Terms in brackets indicate the direction in which the constant affects the system. Here PN, EIN, SIIN and FIIN represent populations of PNs, excitatory interneurons, slow inhibitory interneurons and fast inhibitory interneurons, respectively.}
+%		\begin{tabular}{||p{4cm}|p{7cm}|p{2cm}||}\hline
+%			 \textsc{Model parameter}  & \textsc{Physical description} & \textsc{Value}
+%			   \\\hline\hline
+%			 $C_{1}$ & Connectivity constant (PN - EIN) & C \\\hline
+%			 $C_{2}$ & Connectivity constant (EIN + input - PN) & 0.8C \\\hline
+%			 $C_{3}$ & Connectivity constant (PN - SIIN) & 0.25C  \\\hline
+%			 $C_{4}$ & Connectivity constant (SIIN - PN)& 0.25C \\\hline
+%			 $C_{5}$ & Connectivity constant (PN - FIIN) & 0.3C \\\hline
+%			 $C_{6}$ & Connectivity constant (SIIN - FIIN) & 0.1C \\\hline
+%			 $C_{7}$ & Connectivity constant (SIIN - PN) & 0.8C \\\hline\hline
+%		\end{tabular}
+%		\label{tab: Connectivity}
+%	\end{table}
+%\end{center}
+%
+%\begin{center}
+%	\begin{table}
+%			\caption{Dynamic Model Parameters}
+%		\begin{tabular}{||p{4cm}|p{6cm}|p{1.5cm}|p{1.2cm}||}\hline
+%			 \textsc{Model parameter}  & \textsc{Physical description} & \textsc{Value} & \textsc{Units}  \\\hline\hline
+%			 \textsl{A} & Gain for excitatory neurons & 3.25 & mV\\\hline
+%			 \textsl{B} & Gain for slow inhibitory neurons & 10 & mV\\\hline
+%			 \textsl{G} & Gain for fast inhibitory neurons & 22 & mV \\\hline\hline
+%		\end{tabular}
+%	 \label{tab: Dynamic}
+%	\end{table}
+%\end{center}
+%\normalsize
+%\onehalfspacing
+%
+%The connectivity constant here is for a single neural population. However, all other connectivity constants are multiples of this value. These values are given in Table~\ref{tab: Connectivity}.
+%
+%The gain parameters are dynamic in nature. However, the gains in this model have values for which normal iEEG activity is observed. These parameters are demonstrated in Table~\ref{tab: Dynamic}.
+%
+%
+%\subsection{Model Solver}
+%
+%A solver is required in order to determine the output of the model over time. For this to be achieved, model parameters have to be defined and a solver method implemented. Two different solvers are discussed below, the first being Euler's method and the second the Matlab implemented Runge-Kutta method.
+%
+%
+%\subsubsection{Euler's Method}
+%
+%Euler's method involves the discretisation of a model in time~\citep{young2009introduction}. Following this, the value of the state at the next time discretisation is determined by making the approximation that the time derivative of the function is constant over a specified interval. This implies that \begin{align}
+%\dot{y} &= \frac{y_{t+T}-y_{t}}{T}\\
+%y_{t+T} &= y_{t} + T\dot{y},
+%\end{align} where $T$ is the period on which the model is discretised. $y_{t+T}$ is the value of the state at the next time step. Euler's method makes use of a first order Taylor approximation given by \begin{align}
+%\label{eqn: EulerM}
+%z_{t+T} = z_{t} + T\dot{z} + O(z^{2}),
+%\end{align} where $T$, $\dot{z}$ and $z_{t}$ are the step size, derivative of the state at the current time step and the current state, respectively. $z_{t+T}$ is the approximated value of the state at the next time step.  The order of the system is zero for linear systems; however, for nonlinear systems, an error will occur due to this approximation. Further, this approximation is only valid for a deterministic process.
+%
+%For a stochastic process, the following applies: \begin{align}
+%\frac{dx}{dW} &= N(0,\sigma)\\
+%\frac{dx}{dW} &= \frac{x_{t+T}-x_{t}}{\sqrt{T}}\\
+%x_{t+1} &= x_{t}+N(0,\sigma)\sqrt{t}.
+%\end{align}
+%
+%Notice here that $dW$ is replaced by the root of the period instead of the period. This is known as the Euler-Maruyama method~\citep{saito1993simulation}.
+%
+%Using this method, the extended neural mass model can be described as: \begin{align}
+%\label{eqn: WendlingS}
+%x_{1_{t+T}}&= x_{1_{t}}+Tx_{6_{t}}\\
+%x_{6_{t+T}}&= x_{6_{t}} + T(AaS(x_{2_{t}}-x_{3_{t}}-x_{4_{t}})-2ax_{6_{t}}-a^{2}x_{1_{t}})\\
+%x_{2_{t+T}}&= x_{2_{t}}+Tx_{7_{t}}\\
+%x_{7_{t+T}}&= x_{7_{t}} + T(Aa(\mu +C_{2}S(C_{1}x_{1_{t}}))-2ax_{7_{t}}-a^{2}x_{2_{t}})+N(o,\sigma)\sqrt{T}\\
+%x_{3_{t+T}}&= x_{3_{t}}+Tx_{8_{t}}\\
+%x_{8_{t+T}}&= x_{8_{t}} + T(BbC_{4}S(C_{3}x_{1_{t}})-2bx_{8_{t}}-b^{2}x_{3_{t}})\\
+%x_{4_{t+T}}&= x_{4_{t}} + Tx_{9_{t}}\\
+%x_{9_{t+T}}&= x_{9_{t}} + T(GgC_{7}S(C_{5}x_{1_{t}}-C_{6}x_{5_{t}})-2gx_{9_{t}}-g^{2}x_{4_{t}})\\
+%x_{5_{t+T}}&= x_{5_{t}}+Tx_{10_{t}}\\
+%\label{eqn: WendlingS10}
+%x_{10_{t+T}}&= x_{10_{t}} + T(BbS(C_{3}x_{1_{t}})-2bx_{10_{t}}-b^{2}x_{5_{t}}).
+%\end{align}
+%
+%This process is iterated for the required period. However, it is clear that, for nonlinear systems, the approximation of linearity over a small period may become a problem, in particular, when the time steps are large.
+%
+%\subsubsection{Runge-Kutta Method}
+%
+%The Runge-Kutta method makes use of a higher order Taylor series expansion in order to approximate the solution of the states in the next iteration. A Taylor series can generally be expressed as \begin{align}
+%z_{t+T} = \sum_{i=0}^n T^{n}\frac{z^{(n)_{t}}}{n!} + O(z_{t}^{n+1}),
+%\end{align} where parameters are defined in the same fashion as Equation~\ref{eqn: EulerM}. It is clear that as the order of the Taylor series increases, the order of the error introduced is reduced. However, the introduction of higher order derivatives is undesirable since these derivatives are not directly accessible and need to be approximated. The Runge-Kutta method formalises a method to do this. This is a standard procedure and will not be discussed further here~\citep{butcher1996runge}. This method was implemented in Matlab using a fourth order Runge-Kutta method. 
+%
+%\subsection{Model Simulation}
+%
+%The simulations that are performed involve altering the synaptic gains of the three neural populations within the model. By doing so, six different types of activity can be observed. The type of activity is classified by the frequency response of the output~\citep{wendling2002epileptic}. Many different gain parameters result in the same type of activity. 
+%The initial simulations involve altering the excitability and creating a matrix of the responses that are observed. Table~\ref{tab: Sim} is an example of a solution set that can result from these simulations, where numbers one to six indicate the type of activity. This is merely an example of how the matrix is used and not an indication of actual results. The types of activity that are observed in this model are: normal, alpha rhythm, sustained discharges of spikes, low voltage rapid activity, slow quasi sinusoidal activity and sporadic spikes.
+%
+%Once the typical activity for specific model parameters have been determined, the parameters are altered within a single simulation. This is done to determine whether the altering of parameters in simulation can replicate the type of activity observed during and preceding a seizure. A issue with this process is that the activity in the model can be created by numerous parameter sets. In order to reduce the number of alternate solutions, the excitability is assumed to be constant in the transition to seizure.
+%
+%\singlespacing
+%\small
+%\begin{center}
+%	\begin{table}
+%			\caption[Simulation Output Matrix]{Simulation output matrix. The number used in the table represent the type of activity observed in the simulations. The types are: normal (1), sporadic spikes (2), sustained discharges of spikes (3), alpha rhythm (4), low voltage rapid activity (5) and slow quasi sinusoidal activity (6).}
+%		\begin{tabular}{||p{2cm}||p{2cm}|p{2cm}|p{2cm}||}\hline
+%			 $A=5$  & $G=0$ & $G=5$ & $G=10$  \\\hline\hline
+%			 $B=0$ & 3 & 2 & 6\\\hline
+%			 $B=5$ & 4 & 1 & 5\\\hline
+%			 $B=10$ & 3  & 5 & 6 \\\hline\hline
+%		\end{tabular}
+%		\label{tab: Sim}
+%	\end{table}
+%\end{center}
+%\normalsize
+%\onehalfspacing 
+%
+%
+%\section{Extended Neural Mass Model Estimation}
+%
+%The UKF provides a method to track parameters from a nonlinear computational model. It can track these parameters in situations where the observations are corrupted by noise. For this study, iEEG measurements are the observations, which are corrupted by noise from the amplifier system and the extended neural mass model is a nonlinear model. Therefore, methods such as the Kalman filter cannot be used.  
+%
+%At present, our group is working on developing methods to use the UKF to estimate specific parameters from the neural mass model. This work will help further develop the methods discussed here. However, the parameters that are to be tracked for this study are from the extended neural mas model. In order to alter the algorithm to apply to this system, the state transformation matrix needs to be altered. However, before this is described the general equations for the UKF will be presented.
+%
+%For this approach, it is assumed that the estimated parameters vary slowly when compared to the states of the system. This has been shown in similar studies~\citep{cressman2009influence}. By making this assumption no dynamics need to be described for these parameters. For the extended neural mass model this is the case, as the membrane potential varies quickly with time, but the physiological parameters in the model alter slowly~\citep{wendling2005interictal}. To begin with the estimation of states for a nonlinear model will be discussed. This system can be described as \begin{align}
+%\mathbf{z}_{t+T} &= b(\mathbf{z}_{t}),
+%\end{align} where $\mathbf{z}_{t+T}$ represents the state estimate for the next time step, $b(\cdot)$ represents the function, which is nonlinear in this case. $\mathbf{z}_{t}$ represents the current state. Also note that $T$ here indicates the sampling period used for the estimation procedure. Further to this, the following definitions apply: \begin{align}
+%\mathbf{\overline{z}}_{t} &= E(\mathbf{z}_{t})\\
+%\mathbf{P}_{zz,t} &= E[(\mathbf{z}_{t}-\mathbf{\overline{z}}_{t})(\mathbf{z}_{t}-\mathbf{\overline{z}}_{t})^{\top}],
+%\end{align} where $E$ is the expected value and $\mathbf{P}_{zz,t}$ is the covariance of $z_{t}$. The $^{\top}$ sign at the end of the covariance matrix indicates the transpose of a matrix. 
+%
+%For the estimation problem, the state estimate $\mathbf{\overline{z}}_{t+T}$ needs to be determined, as well as the covariance matrix $\mathbf{P}_{zz,t+T}$. For the UKF, this is achieved by assuming that the posterior state probability distribution is a Gaussian. By doing so the exact nonlinearity of $b(\cdot)$ can be retained. Therefore, for the unscented Kalman filter $\mathbf{z}_{t+T}$ has a probability density which is assumed to be Gaussian. This implies that $\mathbf{z}_{t+T}$ is completely described by its mean and covariance. 
+%
+%In order to approximate this, the posterior Gaussian density sigma points are used. The sigma points are described as follows \begin{align}
+%\label{eqn: Unscented_Transform1}
+%\mathbf{\mathcal{X}}_{n} &= \mathbf{\overline{x}}_{t} + (\sqrt{\kappa+D_{x}P})_{n} \quad n=1,\hdots,D_x\\
+%\label{eqn: Unscented_Transform2}
+%\mathbf{\mathcal{X}}_{n+D_{x}} &= \mathbf{\overline{x}}_{t} - (\sqrt{\kappa+D_{x}P})_{n} \quad n=1,\hdots,D_x,
+%\end{align} where $\mathbf{\mathcal{x}}$  are the sigma points, $D_{x}$ is the number of states of $\mathbf{x}_{t}$. $\sqrt{D_{x}P}_{n}$ denotes the $n$th row or column of the matrix square root. 
+% $\kappa$ is greater than 0, then \begin{align}
+%\mathbf{\mathcal{x}}_{0} &= \mathbf{\overline{x}}_{t}.
+%\end{align} Therefore, when $\kappa$ is greater than zero the mean value from previous estimations is propagated as a sigma point. In figure~\ref{fig: Sigma} the respective sigma points are demonstrated for a single dimension system.
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics[height=0.3\textheight]{pdf/Sigma_Points_Mean_2_Variance_1.pdf}
+%	\caption[Sigma Points]{For the Unscented Kalman Filter states are assumed to be described by a Gaussian distribution. An example is demonstrated here with a mean of two and a variance of one. A Gaussian distribution is completely described by its mean and variance, and the unscented transform, which is described in equations~\ref{eqn: Unscented_Transform1}-\ref{eqn: Unscented_Transform2}, uses this fact to propagate specific states through the system. The states it propagates are the mean, if $\kappa$ is greater than zero, and the points one standard deviation from the mean. In the figure the mean is shown by the red circle, and the blue circles show the two points one standard deviation from the mean.}
+%	\label{fig: Sigma}
+%\end{figure}
+%
+%
+%The sigma points are then propagated through the system and used to estimate the the next state as follows \begin{align}
+%\mathbf{\mathcal{Z}}_{n,t+T} &= b(\mathbf{\mathcal{Z}}_{n,t})\\
+%\mathbf{X}_{t+T} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} \mathbf{\mathcal{X}}_{n,t+T}\\
+%\mathbf{P}_{xx,t+T} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{x}}_{n,t+T} -\mathbf{\overline{x}}_{t+T})(\mathbf{\mathcal{x}}_{n,t+T}-\mathbf{\overline{x}}_{t+T})^{\top}.
+%\end{align}
+%
+%These equations describe the propagation of sigma points through the system. In figure~\ref{fig: SigmaPropagate} the propagation of a single dimension systems stigma points is demonstrated. It is assumed that the system here is a sigmoid. Note from this figure that the assumption of a Gaussian distribution for both prior and posterior states introduces an error. This error can be clearly observed in Figure~\ref{fig: Sigma_Error}.
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics[width = 1\textwidth]{pdf/Sigma_Points_Propagation_and_Particle_Filter_Propagation_Sigmoid_Mean_6_Variance_2}
+%	\caption[Sigma Point Propagation]{Four figures are demonstrated in this image: in the top left hand corner the original state distribution is shown, in the top right corner the system through which the state will be propagated, in the bottom left corner the result from propagating all states originally described through the system, and in the bottom left corer the result from propagating the sigma points through the system. In the top left corner image the circles in blue and red indicate the sigma points that are propagated through the system. With the unscented Kalman filter the mean and variance of this propagation is then used to describe the distribution of states after they have been propagated. Note that this method assumes that the propagated states are Gaussian. When this result is compared to the actual result from propagating all state values through the system it is clear that the assumption creates an error. However, the amount of computational power required to implement the particle filter for higher dimensional systems is excessive. Hence, this approximation using the unscented Kalman filter is often adequate to describe all necessary dynamics.}
+%	\label{fig: SigmaPropagate}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics[height = 0.3\textheight]{pdf/Sigma_Points_Propagation_Error_and_Particle_Filter_Propagation_Sigmoid_Mean_6_Variance_2}
+%	\caption[Sigma Point Propagation Error]{In this figure the propagation of states through the sigmoid demonstrated in Figure~\ref{fig: SigmaPropagate}, notice that the variance from the sigma point approximation, demonstrated in black, is less than the actual variance. However, the mean value predicted by both methods are similar.}
+%	\label{fig: Sigma_Error}
+%\end{figure}
+%
+% The next step is to correct these state estimates based on observations. In order to do this some notation is defined. Firstly, the prior and posterior state estimates need to be described. The prior estimates describe states that have been propagated through the system, but have not been corrected based on the current observation. The posterior estimates describe states that have been corrected by the current measurement. The posterior state and covariance estimate are defined as $z_{t}^{+}$ and $P_{zz}^{+}$, respectively. The prior state and covariance estimate will be defined as $z_{t}^{-}$ and $P_{zz}^{-}$, respectively. This notation is used for other parameters. Using this notation the mean and covariance of the prior states can be described as follows \begin{align}
+%\mathbf{\mathcal{x}}_{n}^{-} &= b(\mathbf{\mathcal{x}}_{n,t})\\
+%\mathbf{x}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} \mathbf{\mathcal{x}}_{n}^{-}\\
+%\mathbf{\mathcal{Y}}_{n}^{-} &= c(\mathbf{\mathcal{x}}_{n}^{-})\\
+%\mathbf{{y}}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} \mathbf{\mathcal{Y}}_{n}^{-}\\
+%\label{eqn: statecovg}
+%\mathbf{P}_{xx}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{x}}_{n}^{-}-\mathbf{x}^{-})(\mathbf{\mathcal{x}}_{n}^{-}-\mathbf{x}^{-})^{\top} +\mathbf{Q},\\
+%\mathbf{P}_{xy}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{x}}_{n}^{-}-\mathbf{x}^{-}) (\mathbf{\mathcal{Y}}_{n}^{-}-\mathbf{{y}}^{-})^{\top}\\
+%\mathbf{P}_{yy}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{Y}}_{n}^{-}-\mathbf{{y}}^{-}) (\mathbf{\mathcal{Y}}_{n}^{-}-\mathbf{{y}}^{-})^{\top} +\mathbf{R},
+%\end{align} where $\mathbf{\mathcal{Y}}_{n}^{-}$ describes the sigma points for the measured variables, and the function $c(\cdot)$ describes the transformation from the state variable sigma points $\mathbf{\mathcal{x}}_{n}^{-}$ to the estimate of the observation $\mathbf{\mathcal{Y}}_{n}^{-}$. $\mathbf{R}_{t+T}$ describes the covariance of the measurement error. This gives an approximation of the estimate of the states based on the system. However, the observation needs to be incorporated into this estimate. This is achieved as follows \begin{align}
+%\mathbf{K} &= \mathbf{P}_{xy}^{-}(\mathbf{P}_{yy}^{-})^{-1}\\
+%\mathbf{x}_{t}^{+} &= \mathbf{x}_{t}^{-} + \mathbf{K}(\mathbf{y}_{t}-\mathbf{y}_{t}^{-})\\
+%\mathbf{P}_{xx}^{+} &= \mathbf{P}_{xx}^{-} - \mathbf{K}(\mathbf{P}_{xy}^{-})^{\top},
+%\end{align} where $\mathbf{y}_{t}$ indicates the observation and $\mathbf{Q}$ are indicative of inaccuracy in the model and uncertainty that may occur due to other aspects such as a stochastic or unknown inputs. This set of equations describes the UKF and how it can be used to estimate states. However, for this study we are interested in estimating parameters for the extended neural mass model.
+%
+%When considering the application of the UKF it is clear that more insight into the effect of model parameters is required. To begin with the initial state and covariance initialised when solving the system is important. If the initial state and covariance do not describe all possible dynamics then the model states will not track there actual values. This occurs due to local minima in the case where the initial state value is distant from its actual value. The possibility of this occurring is increased if the initial covariance of the particular state is low. When considering what this means, if we consider a state which is actually at 50, but we initialize it at 5 with a covariance of 2. For nonlinear systems their may be a state at 10 that results in similar activity to when the particular state is at 50. Therefore, this estimation procedure would estimate this state at ten. However, if the covariance is increased to twenty the estimate may track to its actual value of fifty.
+%
+%The next issue to consider is the value of $\kappa$. If $\kappa$ is greater than zero than the mean value is propagated through the system. If it is set to zero only the points one standard deviation away from the mean are propagated through the system. The value of $\kappa$ specifies the relative importance of the propagation of the mean through the system, for example if it is set to two it has four times the weighting in determining the mean than the propagated points one standard deviation from the mean.
+%
+%The last issue to consider when estimating states is the uncertainty and noise parameters. These parameters specified by the matrices $Q$ and $R$ are used to indicate the amount of uncertainty that there is about the model's ability to replicate the observed data. This could be uncertainty due to unobserved inputs to the system, or limitations in the model's accuracy due to assumptions made. The matrix $R$ is used to describe noise inherent in the observations. 
+%
+%\subsubsection{Parameter Tracking}
+%
+%When considering the estimation of parameters, the state transformation function needs to be augmented with the parameters. The following equations describe the general form of the parameter tracking problem \begin{align}
+%\mathbf{\theta_{t+T}} &= \mathbf{\theta_{t}} +\mathbf{\epsilon_{t}}\\
+%\mathbf{x_{t+T}} &= f(\mathbf{x_{t}},\mathbf{\theta})\\
+%\mathbf{y_{t+T}} &= g(\mathbf{x_{t+T}},\mathbf{\theta}) + \mathbf{\eta}_{t+T},
+%\end{align} with $\mathbf{\theta}$ specifying the parameters that need to be tracked, $f(\cdot)$ the state transformation function and $g(\cdot)$ the observation function. $\mathbf{\eta}_{t+T}$ describes the expected noise on the observation. Here $\mathbf{\epsilon_{t}}$ represents a stochastic process. The variable $\mathbf{Q}$ is used to define the covariance of this process, and is required for the estimation process. Note that this allows the estimated parameters to vary in time. All of the equations that have been used to describe the UKF and the parameter estimation process have been altered from~\cite{voss2004nonlinear}.
+%
+%The next step is to apply this parameters estimation process to the extended neural mass model. In order to do this the model's functions $f(\cdot)$ and $g(\cdot)$ need to be defined. With reference to equations~\ref{eqn: WendlingS}-\ref{eqn: WendlingS10}, the discretised model has been described. This is representative of the function $f(\cdot)$. The states described in this model are descriptive of the potentials of each neural population and the derivative of these potentials. Equation~\ref{eqn: WendlingOut} specifies the output of the model, in this case the membrane potential in terms of the system states. Therefore, this equation is descriptive of $g(\cdot)$.
+%
+%For the extended neural mass model, the interest is in estimating the synaptic gains of the three neural populations. Therefore, \begin{align}
+%\mathbf{\theta} = \left[\begin{array}{ccc} 
+%A & B & G  
+%\end{array}\right]^{\top},
+%\end{align} where $A$,$B$ and $G$ are previously defined. 
+%
+%The UKF makes use of each observation to update the estimation of the specified parameters. However, these parameters have a specified covariance $\mathbf{Q}$, which would make the covariance of the states different from equation~\ref{eqn: statecovg}. This equation will now become \begin{align}
+%\mathbf{P}_{xx}^{-} &= \frac{1}{2D_{x}}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{x}}_{n}^{-}-\mathbf{x}^{-})(\mathbf{\mathcal{x}}_{n}^{-}-\mathbf{x}^{-})^{\top} + \mathbf{Q},
+%\end{align} where Q is the covariance of the augmented state and parameter matrix.
+%
+%When considering the model parameters in the augmented state matrix the covariance for these states can be used to describe the physical range of the parameter of interest. This will allow the parameter sufficient variance to track its actual value. Further to this the uncertainty of the model parameters are set low to reduce the variation in the parameter once it has converged to its actual value. Using low uncertainty results in good convergence to a single parameter value; however, when the purpose of the estimation procedure is to track the parameter values, the variance of the model parameters needs to be set at each time step. This allows the estimation procedure to assume that the estimated parameter is slowly varying, and track its value as it varies.
+%
+%The UKF is capable of tracking parameters, and estimating states using the method described above. The advantage of this method is that it makes a trade off between the noise in the observations, as well as model error due to assumptions made. These effects are described in the covariance matrices $\mathbf{P}_{zz}^{-}$ and $\mathbf{P}_{yy}^{-}$  where the covariance of the observation noise and the model error are added to the variance of the sigma points. With the model error set to zero, the covariance in the model will only alter due to the nonlinearity in the system. With the covariance of the observation set to zero, the previous estimate of the model states provides no information. In other words the current estimate would be solely based on the current observation. However, by adding these disturbances the estimation procedure will be more descriptive of the actual system. The reason for this is that the observations and the model are not ideal, and this trade off method described by the UKF provides a method to estimate the most likely state and parameter values.  
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/Mapping1.pdf}
+%	\caption[Unscented Transform Example]{Example of the unscented transform. In the top left figure a Gaussian distribution of states is shown $f_X(x)$, and in the bottom left image is a sigmoid function. The bottom right figure the analytical solution $f_Y(y)$ in black and the estimate determined by the unscented transform in red. This figure demonstrates how the unscented transform works in practice. Image modified with permission from Dr. D.R. Freestone}
+%	\label{fig: Mapping}
+%\end{figure}
+%
+%In figure~\ref{fig: Mapping} an example of the results from the unscented transform compared to an analytic solution are demonstrated. This image was created by propagating a distribution $f_X(x)$ through a sigmoid function. The analytical solution is demonstrated by the function $f_Y(y)$ in black, and the estimate obtained from the unscented transform in red. It is clear from this demonstration that the unscented transform can provide an accurate representation of the distribution being propagated.
+%
+%%\begin{align}
+%%\label{eqn: WendlingSF}
+%%x_{1_{t+T}}&= x_{1_{t}} + Tx_{6_{t}}\\
+%%x_{6_{t+T}}&= x_{6_{t}} + T(AaS(x_{2_{t}}-x_{3_{t}}-x_{4_{t}})-2ax_{6_{t}}-a^{2}x_{1_{t}})\\
+%%x_{2_{t+T}}&= x_{2_{t}} + Tx_{7_{t}}\\
+%%x_{7_{t+T}}&= x_{7_{t}} + T(Aa(\mu +C_{2}S(C_{1}x_{1_{t}}))-2ax_{7_{t}}-a^{2}x_{2_{t}})+N(o,\sigma)\sqrt{t}\\
+%%x_{3_{t+T}}&= x_{3_{t}} + Tx_{8_{t}}\\
+%%x_{8_{t+T}}&= x_{8_{t}} + T(BbC_{4}S(C_{3}x_{1_{t}})-2bx_{8_{t}}-b^{2}x_{3_{t}})\\
+%%x_{4_{t+T}}&= x_{4_{t}} + Tx_{9_{t}}\\
+%%x_{9_{t+T}}&= x_{9_{t}} + T(GgC_{7}S(C_{5}x_{1_{t}}-C_{6}x_{5_{t}})-2gx_{9_{t}}-g^{2}x_{4_{t}})\\
+%%x_{5_{t+T}}&= x_{5_{t}} + Tx_{10_{t}}\\
+%%\label{eqn: WendlingSF10}
+%%x_{10_{t+T}}&= x_{10_{t}} + T(BbS(C_{3}x_{1_{t}})-2bx_{10_{t}}-b^{2}x_{5_{t}}).
+%%\end{align}
+%%
+%%These equations have the nonlinear sigmoid function $S$. Therefore they cannot be described using a single matrix $F$. Instead they can be described by the following expression:
+%%
+%%\begin{align}
+%%\label{eqn: Model_function}
+%%\mathbf{x_{t+T}} *= \mathbf{x_{t}} + \mathbf{Fx_{t}} + \mathbf{H}\mathbf{S}(\mathbf{Kx_{t}}) + \mathbf{\delta}.
+%%\end{align}
+%%
+%%This equation is descriptive of the general form of the system~\citep{chong2012estimating}, that has been discretised using Euler's method. Where:
+%%
+%%\begin{align}
+%%\mathbf{F} = \left[\begin{array}{cccccccccc}  
+%%1 & 0 & 0 & 0 & 0 & T & 0 & 0 & 0 & 0 \\
+%%0 & 1 & 0 & 0 & 0 & 0 & T & 0 & 0 & 0 \\
+%%0 & 0 & 1 & 0 & 0 & 0 & 0 & T & 0 & 0 \\
+%%0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & T & 0 \\
+%%0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & T \\
+%%-a^{2}T & 0 & 0 & 0 & 0 & 1-2aT & 0 & 0 & 0 & 0\\ 
+%%0 & -a^{2}T & 0 & 0 & 0 & 0 & 1-2aT & 0 & 0 & 0\\ 
+%%0 & 0 & -b^{2}T & 0 & 0 & 0 & 0 & 1-2bT & 0 & 0\\ 
+%%0 & 0 & 0 & -g^{2}T & 0 & 0 & 0 & 0 & 1-2gT & 0\\ 
+%%0 & 0 & 0 & 0 & -b^{2}T & 0 & 0 & 0 & 0 & 1-2bT 
+%%\end{array}\right]
+%%\end{align}
+%
+%%Notice that $F$ only describes the linear elements from equations~\ref{eqn: WendlingSF}-\ref{eqn: WendlingSF10}. In order to describe the nonlinear elements of these equations $K$ is defined:
+%%
+%%\begin{align}
+%%\mathbf{K} = \left[\begin{array}{cccccccccc}  
+%%0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+%%0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+%%0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+%%0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+%%0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+%%0 & 1 & -1 & -1 & 0 & 0 & 0 & 0 & 0 & 0\\ 
+%%C_{1} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\ 
+%%C_{3} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\ 
+%%C_{5} & 0 & 0 & 0 & -C_{6} & 0 & 0 & 0 & 0 & 0\\ 
+%%C_{3} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 
+%%\end{array}\right]
+%%\end{align}
+%%
+%%\begin{align}
+%%\mathbf{S} = \left[\begin{array}{cccccccccc}  
+%%S & S & S & S & S & S & S & S & S & S  
+%%\end{array}^{\top}\right]
+%%\end{align}
+%
+%%Where $S$ is the sigmoid function.
+%%
+%%\begin{align}
+%%\mathbf{H} = \left[\begin{array}{cccccccccc} 
+%%0 & 0 & 0 & 0 & 0& TAa & TAaC_{2} & TBbC_{4} & TGgC_{7} & TBb 
+%%\end{array}^{\top}\right]
+%%\end{align}
+%%
+%%\begin{align}
+%%\mathbf{\delta} = \left[\begin{array}{cccccccccc} 
+%%0 & 0 & 0 & 0 & 0 & 0 & TAa\mu + N(o,\sigma)\sqrt{t} & 0 & 0 & 0  
+%%\end{array}^{\top}\right]
+%%\end{align}
+%%
+%%This describes all the elements of equation~\ref{eqn: Model_function}. However, the function $G$ has not been defined. The matrix G describes:
+%
+%%\begin{align}
+%%\mathbf{y_{t+T}} = \mathbf{G}\mathbf{x_{t+T}},
+%%\end{align}
+%
+%
+%%
+%%where G is the matrix:
+%%\begin{align}
+%%\mathbf{G} = \left[\begin{array}{cccccccccc} 
+%%0 & 1 & -1 & -1 & 0 & 0 & 0 & 0 & 0 & 0  
+%%\end{array}^{\top}\right]
+%%\end{align}
+%
+%%This describes the systems equations. The last issue to consider is the parameters that need to be estimated. The matrix $\mathbf{\theta}$ is used to do this and is:
+%
+%%\[ \mathbf{\theta}
+%%= \begin{vmatrix}
+%%A & B & G  
+%%\end{vmatrix}^{T},\]
+%
+%\subsection{Considerations for Estimating the Extended Neural Mass Model}
+%
+%In the extended neural mass model, the input to pyramidal neurons consists of deterministic and stochastic elements. These stochastic elements cannot be estimated by the UKF. Therefore the effect of this stochastic input needs to be included in the model as some form of uncertainty. Further to this, the model description cannot describe the activity recorded in the hippocampus precisely. These aspects all require uncertainty to be included in the covariance of states estimate. The effect of the inaccuracy of the model and stochastic elements are incorporated in the matrix $\mathbf{Q}$ in equation~\ref{eqn: statecovg}. 
+%
+%
+%\subsection{Analysis of Estimation Process}
+%\label{ssec: Analysis}
+%
+%In order to determine whether the estimation process provides accurate estimates of the required parameters, the algorithm will be tested on simulated data. The simulated data will have additional noise added to the output signal in order to simulate real recordings. The UKF will then be used to track the parameters inferred on this simulated signal. If the results are inaccurate the model formulation and estimation procedure may have to be altered to improve the results. It may also be possible that the inaccurate results may be due to covariance matrix, and initial values not being adequately set. Both of these issues will be analysed if necessary.
+%
+%To begin with this estimation procedure will estimate the computational model states that describe the fast dynamics of the modeled cortical region. For this estimation the stochastic input to the model will be adjusted in order to determine the effect of its variance on the estimation procedure. Initially the variance of the model is set to zero, then to half its actual value and finally to its true value as described by \cite{wendling2002epileptic}. Next the effect of noise on the estimation procedure is determined. The observation function is altered by adding noise that would occur due to imperfections in the hardware system used. The noise is added to the observation function, and its magnitude is adjusted until estimation fails. This will provide an upper bound on the amount of noise that can occur on the signal before the estimation procedure will fail.
+%
+%Next the estimation of model parameters is considered. For this estimation procedure the simulated signal will be generated with constant model parameters. By assuming the model parameters are constant are uncertainty about these parameters remains low. Initially only one parameter is estimated, then two and finally three. Once the three parameters can be adequately estimated, that being the value they converge to is within ten percent of the actual value, the input will be estimated. If the estimation of the input improves the parameter estimates then all estimations from that point on will estimate the input, otherwise the input will no longer be estimated.
+%
+%The brain is constantly changing; therefore, the assumption that the model parameters are constant over the duration of the simulation is incorrect. However, with the UKF we can track the changes in these parameters by assuming that the they are slowly varying in comparison to the model states. In order to model this the uncertainty in these model parameters is increased in the UKF. This allows for the model parameters to slowly vary from the value that they converge to. Thereby, allowing the UKF to track the changes in the parameters.
+%
+%Once parameter tracking is working the effect of noise in the observation signal will be analysed. This process is identical to the procedure used to determine the efficacy of state estimation under varying levels of noise. 
+%
+%
+%In order to determine the error involved in the estimation procedure we determine the mean squared error\begin{align}
+%\label{eqn: UKFerror}
+%\delta = \frac{1}{N}\sum_{i=0}^N (x(i)-x_{e}(i)),
+%\end{align} where $\delta$ is the mean squared error, $N$ is the number of estimates made, $x(i)$ is the simulated signal or model parameter of interest and $x_{e}(i)$ is the estimated signal. The mean square error is useful when considering the estimation of states. However, when considering parameter estimation a method to compare the results from one parameter estimate to others needs to be developed. In order to achieve this the mean square error will be normalised. This is achieved by\begin{align}
+%\label{eqn: UKFerrorN}
+%\hat{\delta} = \frac{1}{N}\sum_{i=0}^N \frac{(x(i)-x_{e}(i))}{x(i)},
+%\end{align} where all parameters are as defined in equation~\ref{eqn: UKFerror}.
+%
+%In order to determine the robustness of the estimation procedure the noise parameter added to the observation will be increased until estimation fails. further to this, the original state estimates will be initialised with different values in order to determine how far the initial state guess can be from the actual states before the estimation procedure fails. These results will allow the analysis of data to be performed more accurately, and determine whether for particular data this estimation procedure will provide accurate results for the estimated parameters.
+%
+%The Kalman filter may take long durations to correctly track the actual parameters, this is particularly true when the initial parameters are a distance from their true values. In order to decrease this duration the sampling frequency for recorded data needs to be set high. This will allow more samples per second to be recorded which will improve the time the algorithm takes to track the model parameters considered.
+%
+%As a last issue, the results from the Kalman filter may be misleading as this procedure does not guarantee convergence. Therefore, a genetic algorithm will be implemented on segmented moving epochs in the data. The estimation using this procedure will then be compared to the results from the unscented Kalman filter in order to determine whether the two methods converge to similar model parameter estimates.
+%
+%\subsection{Genetic algorithm}
+%
+%%\subsection{Analysis of Model Results}
+%
+%%\subsubsection{Relationship between Stimulation Parameters and Neural Mass Response}
+%
+%
+%\section{Theoretical Results}
+%
+%In this section the results for all theoretical works performed will be demonstrated. In particular, the simulations performed on the extended and neural mass model will be shown. Further, the estimation of both model's parameters will be presented. In particular, estimation of simulated data and recorded data will be shown.
+%
+%\subsection{Simulations}
+%
+%Two different models have been simulated, the reason for doing so is first of all to establish the methods with a simpler model, and secondly determine the accuracy of the implemented algorithms with multiple sources. To begin with the simulations from the neural mass model will be discussed. Following this the simulations from the extended neural mass model will be presented.
+%
+%\subsubsection{Neural Mass Model Simulations}
+%
+%
+%For the simulation of the neural mass model the gain parameters are varied. In particular from equation~\ref{eqn: JRMS1}-\ref{eqn: JRMS6} the parameters $A$ and $B$ are varied within there defined physiological ranges. For this simulation $A$ is varied from three to seven in increments of 0.5. $B$ is varied from zero to forty in increments of 1. This results in nine by forty one simulations. Therefore, 369 simulations are performed. Due to the number of simulations not all results will be demonstrated. However, key changes that occur when model parameters change will be presented.
+%
+%Four types of activity can be generated using the neural mass model. In Figure~\ref{fig: JRA3B22Sim} normal EEG activity is demonstrated. Seizure activity is demonstrated in Figure~\ref{fig: JRA5B22Sim}. From this image rhythmic spiking activity can be observed. Sporadic spiking can be observed in Figure~\ref{fig: JRA6_5B13Sim}. The last type of activity that can be observed in the model is alpha rhythms, presented in Figure~\ref{fig: JRA5B19Sim}. 
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Jansen_Sim/Jansen_Rit_Model_Simulation23P=A_3_B_22_G_0iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the neural mass model.}
+%                \label{fig: JRA3B22}        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Neural Mass Model Simulation of Normal Background Activity]{These two figures demonstrate the output of the neural mass model. The parameters used in this particular simulation, $A$=3 and $B$=22, generate normal background EEG.}
+%       \label{fig: JRA3B22Sim}
+%\end{figure} 
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Jansen_Sim/Jansen_Rit_Model_Simulation23P=A_5_B_22_G_0iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the neural mass model.}
+%                \label{fig: JRA5B22}        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Neural Mass Model Simulation of Seizure Activity]{These two figures demonstrate the output of the neural mass model. For the parameters used in this simulation seizure activity is observed. The parameters for this simulation are: $A$=5 and $B$=22.}
+%       \label{fig: JRA5B22Sim}
+%\end{figure} 
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Jansen_Sim/Jansen_Rit_Model_Simulation14P=A_6_5_B_13_G_0iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the neural mass model.}
+%                \label{fig: JRA6_5B13}        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Neural Mass Model Simulation of Sporadic Spiking Activity]{These two figures demonstrate the output of the neural mass model. The parameters for this simulation are: $A$=6.5 and $B$=13. These parameters result in a simulation which generates sporadic spiking activity.}
+%       \label{fig: JRA6_5B13Sim}
+%\end{figure} 
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Jansen_Sim/Jansen_Rit_Model_Simulation20P=A_5_B_19_G_0iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the neural mass model.}
+%                \label{fig: JRA5B19}        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Neural Mass Model Simulation of Alpha Rhythm Activity]{These two figures demonstrate the output of the neural mass model. For the parameters used in this simulation alpha rhythm activity is observed. The parameters for this simulation are: $A$=5 and $B$=19.}
+%       \label{fig: JRA5B19Sim}
+%\end{figure}
+%
+%Figure~\ref{fig: JRA3B22Sim}-\ref{fig: JRA6_5B13Sim} show the resulting activity from simulations for specific model parameters. From the results it can be seen that an increase in the excitation gain results in a change from normal background activity to seizure. The simulations also show that by increasing the excitation gain further and decreasing inhibition, sporadic spiking activity can be observed. Lastly by decreasing the excitation and increasing the inhibition gain alpha rhythms are observed. However, these are just examples of the results the model can produce. In order to characterise the model output numerous simulations are performed, and the type of activity produced by different model parameter sets is demonstrated. The results from these simulation are shown in Figure~\ref{fig: JR_classify}.
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{pdf/Jansen_Sim_results.pdf}
+%	\caption[Jansen and Rit Simulation Results]{Results}
+%	\label{fig: JR_classify}
+%\end{figure}
+%
+%From Figure~\ref{fig: JR_classify} the effect of the excitability gain and inhibitory gain are demonstrated. For $A=3$ only two types of activity are observed: normal background and sporadic spiking. Sporadic spiking further is only observed when $B$ is within the range of twenty to thirty five. For $A=3.5$ three types of activity can be demonstrated: normal background, sporadic spiking and alpha rhythms. For low values of $B$, less than seventeen, only normal background activity is observed. As $B$ increases the output of the model alters from sporadic spiking to alpha rhythms and vice versa. With $A=4$ the results are similar to $A=3$. However, the transition from sporadic spiking to alpha rhythms is clear. For $B$ less than twelve normal background activity is observed. When $B$ is in the range of thirteen to sixteen sporadic spiking is observed. For all other values of $B$ alpha rhythms are simulated. These results are identical for $A=4.5$ except the range for sporadic spiking decreases to $B$ at thirteen and fourteen. For $A=5$ seizure activity can be observed. However, this activity is only observed for values of $B$ above thirty four. This trend continues for all other values of A. In particular, the trend is as $A$ increases the value of $B$ required to produce seizure activity decreases. For this study when $A=5.5$, $B$ must be above 30 for seizure activity. Similarly for $A$ equal to 6, 6.5 and 7 $B$ needs to be above 22, 21 and 21, respectively for seizure activity to be observed. This suggests that seizure activity is caused by an imbalance between excitation and inhibition gains in the model.
+%
+%\subsubsection{Extended Neural Mass Model Simulations}
+%
+%For simulating the extended neural mass model three model parameters need to be varied, $A$, $B$ and $G$ from equations~\ref{eqn: WendlingS}-\ref{eqn: WendlingS10}. The physiological ranges for $A$ and $B$ are the same as that for the neural mass model. That being $A$ from three to seven and $B$ from zero to forty. The gain of the fast inhibitory interneurons, $G$, can vary from zero to forty. If $B$ and $G$ were simulated at increments of one, then there would be nine by forty one by forty one simulations. This would result in 15129 simulations. In order to reduce the number of simulations $B$ and $G$ are instead simulated in increments of five. Resulting in nine by nine by nine simulations. Therefore, 729 simulations are performed for these results.
+%
+%Firstly the six different types of activity will be shown. Following this a table with the results for all the simulations will summarise the results. To begin with normal background activity is demonstrated in Figure~\ref{fig: WNMA3B20G10Sim}. Sporadic spiking is demonstrated in Figure~\ref{fig: WNMA3B10G0Sim}; sustained discharge of spiking in Figure~\ref{fig: WNMA5B20G15Sim}; slow rhythmic activity in Figure~\ref{fig: WNMA4B0G35Sim}; low voltage rapid activity in Figure~\ref{fig: WNMA5B10G20Sim} and slow quasi sinusoidal activity in Figure~\ref{fig: WNMA5B10G0Sim}.
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Wendling_Sim/Wendling_Model_Simulation3P=A_3_B_20_G_10iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the extended neural mass model.}
+%                \label{fig: WNMA3B20G10}        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[ENMM Simulation of Background Activity]{These two figures demonstrate the output of the extended neural mass model. For the parameters used in this simulation normal background activity is observed. The parameters for this simulation are: $A$=3, $B$=20 and $G$ =10.}
+%       \label{fig: WNMA3B20G10Sim}
+%\end{figure}
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Wendling_Sim/Wendling_Model_Simulation1P=A_3_B_20_G_0iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the extended neural mass model.}
+%                \label{fig: WNMA3B10G0}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[ENMM Simulation of Sporadic Spiking Activity]{These two figures demonstrate the output of the extended neural mass model. For the parameters used in this simulation sporadic spiking activity is observed. The parameters for this simulation are: $A$=3, $B$=10 and $G$=0.}
+%       \label{fig: WNMA3B10G0Sim}
+%\end{figure}
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Wendling_Sim/Wendling_Model_Simulation4P=A_4_B_15_G_15iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the extended neural mass model. }
+%                \label{fig: WNMA5B20G15}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[ENMM Simulation of Sustained Discharge of Spiking Activity]{These two figures demonstrate the output of the extended neural mass model. For the parameters used in this simulation sustained discharge of spiking is observed. The parameters for this simulation are: $A$=5, $B$=20 and $G$=15.}
+%       \label{fig: WNMA5B20G15Sim}
+%\end{figure}
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Wendling_Sim/Wendling_Model_Simulation8P=A_4_B_0_G_35iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the extended neural mass model. }
+%                \label{fig: WNMA4B0G35}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[ENMM Simulation of Slow Rhythmic Activity]{These two figures demonstrate the output of the extended neural mass model. For the parameters used in this simulation slow rhythmic activity is observed. The parameters for this simulation are: $A$=4, $B$=0 and $G$=35.}
+%       \label{fig: WNMA4B0G35Sim}
+%\end{figure}
+%
+%\begin{figure}
+%              \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Wendling_Sim/Wendling_Model_Simulation5P=A_5_B_10_G_20iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the extended neural mass model. }
+%                \label{fig: WNMA5B10G20}
+%                        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[ENMM Simulation of Low Voltage Rapid Activity]{These two figures demonstrate the output of the extended neural mass model. For the parameters used in this simulation low voltage rapid activity is observed. The parameters for this simulation are: $A$=5, $B$=10 and $G$=20.}
+%       \label{fig: WNMA5B10G20Sim}
+%\end{figure}
+%
+%\begin{figure}
+%                \centering
+%                \includegraphics[width=\textwidth]{../Images/pdf/Wendling_Sim/Wendling_Model_Simulation1P=A_5_B_10_G_0iEEG_Simulation.pdf}
+%                \caption{Simulated activity from the extended neural mass model. }
+%                 ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[ENMM Simulation of Slow Quasi Sinusoidal Activity]{These two figures demonstrate the output of the extended neural mass model. For the parameters used in this simulation slow quasi sinusoidal activity is observed. The parameters for this simulation are: $A$=5, $B$=10 and $G$=0.}
+%       \label{fig: WNMA5B10G0Sim}
+%\end{figure}
+%
+%Figures~\ref{fig: WNMA3B20G10Sim}-\ref{fig: WNMA5B10G0Sim} demonstrate the types of activity that can be observed using the extended neural mass model. Specific parameter values results in these simulations. Similar to the neural mass model these changes are not indicative of the only way to alter the model from one type of activity to the next. Therefore, more simulations are performed and the resulting activity for numerous parameter sets are demonstrated in Figure~\ref{fig: Wendling_classify}.
+%
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics[width=\textwidth]{pdf/Wendling_Sim_Results_all.pdf}
+%	\caption[Simulation Results from the Extended Neural Mass Model]{123}
+%	\label{fig: Wendling_classify}
+%\end{figure}
+%
+%\subsection{Estimation results}
+%
+%For the estimation procedure the states of the specific model are first estimated. To begin with the estimation procedure is first tested on simulated data. Once the estimation of the states and parameters off simulated data is correct the estimation procedure is then done on recorded iEEG. This procedure of estimating the simulated data is repeated for the extended and neural mass model.
+%
+%\subsubsection{Estimation of Simulated Signal from Neural Mass Model}
+%
+%\subsubsection{Estimation of Simulated Signal from Extended Neural Mass Model}
+%
+%For the estimation of the simulated signal the uncertainty is low, the reason for this is that the simulated data is generated using the same model that is used for estimation. However, there is one major difference. In the simulated model stochastic noise is added as a means of describing activity from other cortical regions to the modeled area. In the estimation procedure this input is unknown, and due to its stochastic nature cannot be described in a deterministic manor. Therefore, to incorporate the effect of this input the uncertainty of the state that is affects is increased.
+%
+%\paragraph{State Estimation}
+%
+%For the estimation of states we initially begin by assuming that the input to the model is constant. By doing so the uncertainty parameter of all states can be kept low. Also the measurement noise added to the simulated signal is also kept low. The results from this estimation procedure are demonstrated in Figure~\ref{fig: WMOutS0N221S}-\ref{fig: WMS6S0N221S}. By increasing the variance on the input signal there is more uncertainty in the estimation procedure the results when the stochastic element of the input is increased are demonstrated in Figures~\ref{fig: WMS2S0_5N221S}-\ref{fig: WMS6S0_5N221S}. The results for state estimation when the stochastic input is set back to that used for the simulation procedure are shown in Figure~\ref{fig: WMS2S1N221S}-\ref{fig: WMS6S1N221S}. Further to this, table~\ref{tab: WMN221Error} shows the percentage error calculated as per equation~\ref{eqn: UKFerror}.
+%
+%	%%
+%	%% Variance set to zero, Generated using Wendling8_UKF_and_Sim_v2
+%	%%
+%
+%\begin{figure}
+%                \centering                
+%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_0_P_0PE_10_N_10mV__z_10s_Output.pdf}
+%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Estimation of the Output of the ENMM with Constant Input]{Estimation of the output of the ENMM with constant input. This figure demonstrates the estimation of the output of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is held constant.}
+%       \label{fig: WMOutS0N221S}
+%\end{figure}
+%
+%\begin{figure}
+%                \centering               
+%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_0_P_0PE_10_N_10mV__z_10s_State2.pdf}
+%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Estimation of State 2 of the ENMM with Constant Input]{Estimation of the membrane potential of the pyramidal population of the ENMM with constant input. This figure demonstrates the estimation of the membrane potential of the pyramidal population of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is held constant.}
+%       \label{fig: WMS2S0N221S}
+%\end{figure}
+%
+%\begin{figure}
+%                \centering             
+%                 \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_0_P_0PE_10_N_10mV__z_10s_State6.pdf}
+%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Estimation of state 6 of the ENMM with Constant Input]{Estimation of the rate of change of the membrane potential of the pyramidal population of the ENMM with constant input. This figure demonstrates the estimation of the rate of change of the membrane potential of the pyramidal population of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is held constant.}
+%       \label{fig: WMS6S0N221S}
+%\end{figure}
+%
+%	%%
+%	%% Variance set to half actual, Generated using Wendling8_UKF_and_Sim_v2
+%	%%
+%
+%%\begin{figure}
+%%                \centering               
+%%                 \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_1_P_0PE_10_N_10mV__z_10s_Output.pdf}
+%%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%%                \label{fig: WMOutS0_5N221}
+%%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%%          %(or a blank line to force the subfigure onto a new line)
+%%      \caption[Estimation of the Output of the ENMM with Stochastic Input at Half Variance]{Estimation of the output of the ENMM with input variance at half actual. This figure demonstrates the estimation of the output of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region set with half its actual variance}
+%%       \label{fig: WMOutS0_5N221S}
+%%\end{figure}
+%
+%\begin{figure}
+%                \centering              
+%                 \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_1_P_0PE_10_N_10mV__z_10s_State2.pdf}
+%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%                \label{fig: WMS2S0_5N221}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Estimation of State 2 of the Extended Neural Mass Model with Stochastic Input at Half Variance]{Estimation of the membrane potential of the pyramidal population of the ENMM with input variance at half actual. This figure demonstrates the estimation of the membrane potential of the pyramidal population of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region set with half its actual variance.}
+%       \label{fig: WMS2S0_5N221S}
+%\end{figure}
+%
+%\begin{figure}
+%                \centering              
+%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_1_P_0PE_10_N_10mV__z_10s_State6.pdf}
+%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%                \label{fig: WMS6S0_5N221}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Estimation of state 6 of the ENMM with Stochastic Input at Half Variance]{Estimation of the rate of change of the membrane potential of the pyramidal population of the ENMM with input variance at half actual. This figure demonstrates the estimation of the rate of change of the membrane potential of the pyramidal population of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region set with half its actual variance.}
+%       \label{fig: WMS6S0_5N221S}
+%\end{figure}
+%
+%	%%
+%	%% Variance full, Generated using Wendling8_UKF_and_Sim_v2
+%	%%
+%	
+%%\begin{figure}
+%%                \centering                
+%%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_0PE_10_N_10mV__z_10s_Output.pdf}
+%%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%%                \label{fig: WMOutS1N221}
+%%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%%          %(or a blank line to force the subfigure onto a new line)
+%%      \caption[Estimation of the Output of the ENMM with Stochastic Input at Full Variance]{Estimation of the output of the ENMM. This figure demonstrates the estimation of the output of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region set with full variance.}
+%%       \label{fig: WMOutS1N221S}
+%%\end{figure}
+%
+%\begin{figure}
+%                \centering               
+%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_0PE_10_N_10mV__z_10s_State2.pdf}
+%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%                \label{fig: WMS2S1N221}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Estimation of State 2 of the ENMM with Stochastic Input at Full Variance]{Estimation of the membrane potential of the pyramidal population of the ENMM. This figure demonstrates the estimation of the output of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region set with full variance.}
+%       \label{fig: WMS2S1N221S}
+%\end{figure}
+%
+%\begin{figure}
+%					\centering
+%            \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_state_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_0_P_0PE_10_N_10mV__z_10s_State6.pdf}
+%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%                \label{fig: WMS6S1N221}
+%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%          %(or a blank line to force the subfigure onto a new line)
+%      \caption[Estimation of state 6 of the ENMM with Stochastic Input at Full Variance]{These two figures demonstrate the estimation of state 6 of the extended neural mass model using the unscented Kalman filter. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is described with full variance. In this figure the black and blue lines represent the simulated and estimated respectively. The red lines represent the uncertainty about the estimate made.}
+%       \label{fig: WMS6S1N221S}
+%\end{figure}
+%
+%\singlespacing
+%\small
+%\begin{center}
+%	\begin{table}
+%			\caption[State Estimation Error (Varying Input)]{For each simulation the mean square error is determined. Here the error is shown for the state estimates. The error for all states and the model output are shown for different input variances.}
+%		\begin{tabular}{||p{1.9cm}|p{0.85cm}|p{1.1cm}|p{0.85cm}|p{1.1cm}|p{0.85cm}|p{0.85cm}|p{0.95cm}|p{0.85cm}|p{0.85cm}||}\hline
+%			 \textsc{Input Variance (\% of actual variance)}  & \textsc{$\delta_{Out}$} & \textsc{$\delta_{S1}$} & \textsc{$\delta_{S2}$} & \textsc{$\delta_{S3}$} & \textsc{$\delta_{S4}$}& \textsc{$\delta_{S5}$} & \textsc{$\delta_{S6}$}& \textsc{$\delta_{S7}$} & \textsc{$\delta_{S8}$} \\\hline\hline
+%			 0 & 0.011 & 1.1e-5  & 0.077 & 1.6e-4 & 0.044 & 0.213 & 130 & 3.26 & 383\\\hline
+%			 50 & 0.153 & 3.5e-5  & 1.41 & 1.4e-3 & 0.122 & 0.346 & 9686 & 3.86& 728 \\\hline
+%			 100 & 0.233 & 1.1e-4 & 1.336 & 1.2e-3& 0.133& 0.483 & 37016 & 4.33 & 953 \\\hline\hline
+%		\end{tabular}
+%	 \label{tab: WMN221Error}
+%	\end{table}
+%\end{center}
+%
+%\begin{center}
+%	\begin{table}
+%			\caption[State Estimation Error (Varying Observation Noise)]{For each simulation the mean square error is determined. Here the error is shown for the state estimates. The error for all states and the model output are shown for different observation noise levels.}
+%		\begin{tabular}{||p{1.6cm}|p{0.85cm}|p{1.1cm}|p{0.85cm}|p{1.1cm}|p{0.85cm}|p{0.85cm}|p{0.95cm}|p{0.85cm}|p{0.85cm}||}\hline
+%			 \textsc{Noise ($mV$)}  & \textsc{$\delta_{Out}$} & \textsc{$\delta_{S1}$} & \textsc{$\delta_{S2}$} & \textsc{$\delta_{S3}$} & \textsc{$\delta_{S4}$}& \textsc{$\delta_{S5}$} & \textsc{$\delta_{S6}$}& \textsc{$\delta_{S7}$} & \textsc{$\delta_{S8}$} \\\hline\hline
+%			 0.221 & 0.233 & 1.1e-4 & 1.336 & 1.2e-3& 0.133 & 0.483 & 37016 & 4.33 & 953 \\\hline
+%			 2.21 & 0.233 & 1.1e-4 & 1.336 & 1.2e-3& 0.133 & 0.483 & 37016 & 4.33 & 953 \\\hline
+%			 22.1 & 0.234 & 1.1e-4 & 1.335 & 1.2e-3 & 0.132 & 0.493 & 37019 & 4.35 & 951 \\\hline\hline
+%		\end{tabular}
+%	 \label{tab: WMS1Error}
+%	\end{table}
+%\end{center}
+%\normalsize
+%\onehalfspacing
+%
+%It is clear from the results that as the model input's variance increases the uncertainty in some states increases. This is particularly clear when considering the estimation of the rate of change of the output from excitatory interneurons, and the output of excitatory interneurons. The reason for this is that the output of these neurons is directly affected by the input to the model. This is clear when considering Figure~\ref{fig: Simplified_Wendling}. However, it can been seen that all estimates are within the expected uncertainty described. The next issue to consider is how the effect of noise on the simulated signal affects the estimates made. Table~\ref{tab: WMS1Error} demonstrates the mean square error for varying levels of observation noise. Images for all states and all noise levels considered will be provided in the appendix.
+%
+%\paragraph{Parameter Estimation}
+%
+%For the estimation of the model parameters we keep the uncertainty and variance on the states as per the state estimation section. However, the parameter variance and uncertainty need to be defined. Initially estimation will be performed on simulations where the parameters are held constant for the simulation duration. For constant model parameters the uncertainty is low, and we define the variance of the parameter based on the physiological range of the specified parameter. For initial simulations, it is assumed that the initial guess for the parameter value is ten percent off the actual value. Further, the number of parameters estimated to start off with is one, and progresses to three. Further it is assumed that the noise added to the observation is known, except where indicated otherwise. Lastly the observation noise is set low, and the uncertainty is set as described in the state estimation procedure. Figures~\ref{fig: EPe10P1N221P1S}-\ref{fig: EPe10P1N221P1S} demonstrate the results when one parameters is estimated. Figures~\ref{fig: EPe10P2N221P1S}-\ref{fig: EPe10P2N221P2S} when two parameters are estimated and figures~\ref{fig: EPe10P3N221P1S}-\ref{fig: EPe10P3N221P3S} for the estimation of three parameters. For these simulations it is assumed that the noise in the measurements is low, and that the input is stochastic with the specified mean. The mean square errors for the parameter estimation are shown in Table~\ref{tab: WMSENPN221}-\ref{tab: WMPENPN221}. These tables include the results when the input to the model is estimated. The reason for estimating this input is that changes in its mean value can result in incorrect parameter estimates. When considering the estimate of parameter the mean square error provides some information on the performance of the system. However, it does not allow for comparison between the error between different parameters, in order to compare the error from one parameter to the next the error needs to be normalised. This is achieved using equations~\ref{eqn: UKFerror}. Multiple simulations with identical model parameters are performed In order to determine the effect of estimating the input on the results. These results are demonstrated in Table~\ref{tab: WMPEMSPI}.
+%
+%\singlespacing
+%\small
+%\begin{center}
+%	\begin{table}
+%			\caption[State Estimation Error (Parameter Estimates)]{For each simulation the mean square error is determined. Here the error is shown for the state estimates. The error for all states and the model output are shown for number of parameters estimated. Here $\delta_{S1-S8}$ represent the mean square error for states one to eight. $\delta_{Out}$ represents the error on the estimate of the model output.}
+%		\begin{tabular}{||p{2.3cm}|p{0.85cm}|p{1.05cm}|p{0.85cm}|p{1.05cm}|p{0.85cm}|p{0.85cm}|p{0.95cm}|p{0.85cm}|p{0.82cm}||}\hline
+%			 \textsc{Parameters Estimated}  & \textsc{$\delta_{Out}$} & \textsc{$\delta_{S1}$} & \textsc{$\delta_{S2}$} & \textsc{$\delta_{S3}$} & \textsc{$\delta_{S4}$}& \textsc{$\delta_{S5}$} & \textsc{$\delta_{S6}$}& \textsc{$\delta_{S7}$} & \textsc{$\delta_{S8}$}  \\\hline\hline
+%			 1 & 0.229 & 1.6e-4 & 2.861 & 2.4e-3 & 0.213 & 0.573 & 37372 & 4.462 & 1243 \\\hline
+%			 2 & 0.228 & 1.2e-4 & 3.017 & 2.6e-3 & 0.225 & 0.591 & 37519 & 4.468 & 1289\\\hline
+%			 3 & 0.229 & 1.6e-4 & 3.027 & 2.7e-3 & 0.188 & 0.527 & 37518  & 4.461 & 1107\\\hline
+%			 4 & 0.223 & 1.8e-4 & 3.083 & 2.7e-3 & 0.2 & 0.547 & 37613 & 4.454 & 1110 \\\hline\hline
+%		\end{tabular}
+%	 \label{tab: WMSENPN221}
+%	\end{table}
+%\end{center}
+%\begin{center}
+%	\begin{table} % Begin new table
+%			\caption[Parameter Estimation Error (Parameter Estimates)]{For each simulation the mean square error is determined. Here the error is shown for the state estimates. The error for all states and the model output are shown for number of parameters estimated. Here $\delta_{A,B,G}$ represent the mean square error for parameters $A, B, G$, respectively. $\delta_{In}$ represents the error on the estimate of the model input.}
+%		\begin{tabular}{||p{4.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}||}\hline
+%			 \textsc{Parameters Estimated}  &  \textsc{$\delta_{A}$} & \textsc{$\delta_{B}$} & \textsc{$\delta_{G}$} &  \textsc{$\delta_{In}$} \\\hline\hline
+%			 1 & 0.0688 & N/A & N/A & N/A   \\\hline
+%			 2 & 0.0686 & 0.095 & N/A & N/A \\\hline
+%			 3 & 0.063 & 0.109 & 1.06 & N/A \\\hline
+%			 4 & 0.08 & 0.234 & 1.476 & 202 \\\hline\hline
+%		\end{tabular}
+%	 \label{tab: WMPENPN221}
+%	\end{table}
+%\end{center}
+%\begin{center}
+%	\begin{table} % Begin new table
+%			\caption[Parameter Estimation Error Normalised (Parameter Estimates)]{For each simulation the mean square error is determined. Here the error is shown for the state estimates. The error for all states and the model output are shown for number of parameters estimated. Here $\hat{\delta}_{A,B,G}$ represent the normalised mean square error for parameters $A, B, G$, respectively. $\hat{\delta}_{In}$ represents the normalised error on the estimate of the model input.}
+%		\begin{tabular}{||p{4.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}||}\hline
+%			 \textsc{Parameters Estimated}  &  \textsc{$\hat{\delta}_{A}$} & \textsc{$\hat{\delta}_{B}$} & \textsc{$\hat{\delta}_{G}$} &  \textsc{$\hat{\delta}_{In}$} \\\hline\hline
+%			 1 & 0.014 & N/A & N/A & N/A   \\\hline
+%			 2 & 0.014 & 9.5e-3 & N/A & N/A \\\hline
+%			 3 & 0.013 & 0.011 & 0.071 & N/A \\\hline
+%			 4 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline\hline
+%		\end{tabular}
+%	 \label{tab: WMNPENPN221}
+%	\end{table}
+%\end{center}
+%\begin{center}
+%	\begin{table}
+%			\caption[Parameter Estimation Error Normalised (Multiple Simulations)]{For each simulation the normalised mean square error is determined. Here the error is shown for the parameter and output estimates. The error for all states and the model output are shown for different model parameter values. Here $\hat{\delta}_{A,B,G}$ represent the normalised mean square error for parameters $A, B, G$, respectively. $\hat{\delta}_{In}$ represents the normalised error on the estimate of the model input.}
+%		\begin{tabular}{||p{3.3cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}||}\hline
+%			 \textsc{Input Estimated (Simulation \#)}  & \textsc{$\delta_{Out}$} & \textsc{$\hat{\delta}_{A}$} & \textsc{$\hat{\delta}_{B}$} & \textsc{$\hat{\delta}_{G}$} &  \textsc{$\hat{\delta}_{In}$} \\\hline\hline
+%			 Yes(1) & 0.233 & 9e-3 & 0.015 & 0.095 & 1.357\\\hline
+%			 No(1) & 0.244 & 0.01 & 9.8e-3 & 0.075 & N/A \\\hline
+%			 Yes(2) & 0.236 & 8.9e-3 & 0.024 & 0.131 & 1.404\\\hline
+%			 No(2) & 0.256 & 0.038 & 0.086 & 0.313 & N/A\\\hline
+%			 Yes(3) & 0.248 & 7.8e-3 & 0.016 & 0.137 & 1.302\\\hline
+%			 No(3) & 0.259 & 0.013 & 0.012 & 0.128& N/A \\\hline
+%			 Yes(4) & 0.229 &7.7e-3 & 0.012 & 0.099 & 0.865 \\\hline
+%			 No(4) & 0.255 & 0.036 & 0.054 & 0.341 & N/A\\\hline		
+%			 Yes(5) & 0.235 & 0.013 & 0.024 & 0.082 & 2.154\\\hline
+%			 No(5) & 0.254 & 0.022& 0.014 & 0.044 & N/A \\\hline	
+%			 Yes(6) & 0.236 & 0.014 & 0.035 & 0.095 & 3.465\\\hline
+%			 No(6) & 0.248 & 0.012 & 0.018 & 0.077 & N/A \\\hline	
+%			 Yes(7) & 0.244 & 8.9e-3 & 0.019 & 0.093 & 1.875 \\\hline
+%			 No(7) & 0.26 & 0.232 & 0.019 & 0.036 & N/A \\\hline
+%			 Yes(8) & 0.237 & 7.8e-3 & 0.021 & 0.107 & 2.975 \\\hline
+%			 No(8) & 0.25 & 0.011 & 9e-3 & 0.078 & N/A\\\hline
+%			 Yes(9) & 0.248 & 7.6e-3 & 0.01 & 0.072 & 0.816 \\\hline
+%			 No(9) & 0.259 & 8e-3 & 8.8e-3 & 0.064 & N/A\\\hline
+%			 Yes(10) & 0.242 & 9.3e-3 & 0.015 & 0.112 & 1.796\\\hline
+%			 No(10) & 0.258 & 0.032 & 0.016 & 0.054 & N/A\\\hline			 			 			 			 		 		 
+%			 \end{tabular}
+%	 \label{tab: WMPEMSPI}
+%	\end{table}
+%\end{center}
+%\normalsize
+%\onehalfspacing
+%
+%	%%
+%	%% One parameter estimated, Generated using Wendling8_UKF_and_Sim_v2
+%	%%
+%	
+%%\begin{figure}
+%%                \centering              
+%%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_1PE_10_N_10mV__z_10s_Output.pdf}
+%%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%%                \label{fig: EPe10P1N221O}        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%%          %(or a blank line to force the subfigure onto a new line)
+%%      \caption[Estimation of the Output with one model Parameter Estimated]{These two figures demonstrate the estimation of the model output of the extended neural mass model using the unscented Kalman filter. For this estimation one model parameter, the gain of excitatory neurons, is being estimated. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is described with full variance. In this figure the black and blue lines represent the simulated and estimated respectively. The green line represents the actual simulation output with no noise.}
+%%       \label{fig: EPe10P1N221OS}
+%%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_1PE_10_N_10mV__z_10s_Exc.pdf}
+%	\caption[Estimation of Model Excitability (One Parameter Estimated)]{This figure demonstrates the estimation of the gain of excitatory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P1N221P1S}
+%\end{figure}
+%
+%	%%
+%	%% Two parameters estimated, Generated using Wendling8_UKF_and_Sim_v2
+%	%%
+%
+%%\begin{figure}
+%%                \centering              
+%%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_2PE_10_N_10mV__z_10s_Output.pdf}
+%%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%%                \label{fig: EPe10P2N221O}
+%%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%%          %(or a blank line to force the subfigure onto a new line)
+%%      \caption[Estimation of the Output with Two Model Parameter Estimated]{These two figures demonstrate the estimation of the model output of the extended neural mass model using the unscented Kalman filter. For this estimation twp model parameters, the gain of excitatory and slow inhibitory neurons, are being estimated. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is described with full variance. In this figure the black and blue lines represent the simulated and estimated respectively. The green line represents the actual simulation output with no noise.}
+%%       \label{fig: EPe10P2N221OS}
+%%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_2PE_10_N_10mV__z_10s_Exc.pdf}
+%	\caption[Estimation of Model Excitability Gain (Two Parameters Estimated)]{This figure demonstrates the estimation of the gain of excitatory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P2N221P1S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_2PE_10_N_10mV__z_10s_SInh.pdf}
+%	\caption[Estimation of Model Slow Inhibitory Gain (Two Parameters Estimated)]{This figure demonstrates the estimation of the gain of slow inhibitory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P2N221P2S}
+%\end{figure}
+%
+%	%%
+%	%% Three parameters estimated, Generated using Wendling8_UKF_and_Sim_v2
+%	%%
+%
+%%\begin{figure}
+%%                \centering              
+%%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_3PE_10_N_10mV__z_10s_Output.pdf}
+%%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%%                \label{fig: EPe10P3N221O}
+%%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%%          %(or a blank line to force the subfigure onto a new line)
+%%      \caption[Estimation of the Output with Three Model Parameter Estimated]{These two figures demonstrate the estimation of the model output of the extended neural mass model using the unscented Kalman filter. For this estimation three model parameters, the gain of excitatory, slow inhibitory neurons and fast inhibitory interneurons, are being estimated. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is described with full variance. In this figure the black and blue lines represent the simulated and estimated respectively. The green line represents the actual simulation output with no noise.}
+%%       \label{fig: EPe10P3N221OS}
+%%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_3PE_10_N_10mV__z_10s_Exc.pdf}
+%	\caption[Estimation of Model Excitability Gain (Three Parameters Estimated)]{This figure demonstrates the estimation of the gain of excitatory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P3N221P1S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_3PE_10_N_10mV__z_10s_SInh.pdf}
+%	\caption[Estimation of Model Slow Inhibitory Gain (Three Parameters Estimated)]{This figure demonstrates the estimation of the gain of slow inhibitory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P3N221P2S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_parameter_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_3PE_10_N_10mV__z_10s_FInh.pdf}
+%	\caption[Estimation of Model Fast Inhibitory Gain (Three Parameters Estimated)]{This figure demonstrates the estimation of the gain of fast inhibitory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P3N221P3S}
+%\end{figure}
+%
+%The next issue to consider is whether the accuracy of estimation improves when we estimate the stochastic input to the model. The results when all three model gain parameters and the input are estimated are demonstrated in Figures~\ref{fig: EPe10P4N221P1S}-\ref{fig: EPe10P4N221P4S}.
+%
+%	%%
+%	%% Estimation with input as a augmented state, Generated using Wendling8_UKF_and_Sim_v4
+%	%%
+%	
+%%\begin{figure}
+%%                \centering              
+%%                \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_Output.pdf}
+%%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%%                \label{fig: EPe10P4N221O}
+%%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%%          %(or a blank line to force the subfigure onto a new line)
+%%      \caption[Estimation of the Output with Three Model Parameters and its Input Estimated]{These two figures demonstrate the estimation of the model output of the extended neural mass model using the unscented Kalman filter. For this estimation three model parameters, the gain of excitatory, slow inhibitory neurons and fast inhibitory interneurons, are being estimated. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is described with full variance. In this figure the black and blue lines represent the simulated and estimated respectively. The green line represents the actual simulation output with no noise.}
+%%       \label{fig: EPe10P4N221OS}
+%%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_Exc.pdf}
+%	\caption[Estimation of Model Excitability Gain (Four Parameters Estimated)]{This figure demonstrates the estimation of the gain of excitatory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P4N221P1S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_SInh.pdf}
+%	\caption[Estimation of Model Slow Inhibitory Gain (Four Parameters Estimated)]{This figure demonstrates the estimation of the gain of slow inhibitory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P4N221P2S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_FInh.pdf}
+%	\caption[Estimation of Model Fast Inhibitory Gain (Four Parameters Estimated)]{This figure demonstrates the estimation of the gain of fast inhibitory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P4N221P3S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_Input.pdf}
+%	\caption[Estimation of Model Input (Four Parameters Estimated)]{This figure demonstrates the estimation of the  input to the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EPe10P4N221P4S}
+%\end{figure}
+%
+%
+%The next issue to consider when performing the estimation of parameters is the ability of the UKF to track parameters. This is of particular importance as the brain is not stationary; therefore, it cannot be assumed that the model parameters are constant over long durations of time. Instead we assume that these model parameters are slowly varying in time. In order to allow for the UKF to track parameters the uncertainty of the model parameters estimate needs to be increased. The reason for doing this is to allow the estimation of the parameter to vary even once it has to converged to a current value. If the uncertainty remained constant the estimation procedure would assume that the value that the parameter converged to is its actual value, and the estimate would only vary slightly from this estimate. The results for estimating parameters while they are varying are demonstrated in figure~\ref{fig: EVPPe10P4N221P1S}-\ref{fig: EVPPe10P4N221P3S}. Again for this estimation the noise is assumed to be low, and the inputs variance is set to its actual value.
+%
+%%\begin{figure}
+%%                \centering              \includegraphics[width=\textwidth]{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_Estimation_Wendling8_VP_f=2048_A_5_B_40_G_20_DC_S_2_Blue_Est_Black_Sim_P_4PerE_10_Noise_221uV_Model_Output.pdf}
+%%                \caption{Estimated and simulated activity from the extended neural mass model.}
+%%        ~ %add desired spacing between images, e. g. ~, \quad, \qquad etc. 
+%%          %(or a blank line to force the subfigure onto a new line)
+%%      \caption[Estimation of the Output with Three Model Parameters and its Input Estimated]{These two figures demonstrate the estimation of the model output of the extended neural mass model using the unscented Kalman filter. For this estimation three model parameters, the gain of excitatory, slow inhibitory neurons and fast inhibitory interneurons, are being estimated. For this estimation the noise added to the simulated signal is set low, and the input to the modeled region is described with full variance. In this figure the black and blue lines represent the simulated and estimated respectively. The green line represents the actual simulation output with no noise.}
+%%       \label{fig: EVPPe10P4N221OS}
+%%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_Exc.pdf}
+%	\caption[Estimation of Model Excitability Gain (Four Parameters Estimated)]{This figure demonstrates the estimation of the gain of excitatory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EVPPe10P4N221P1S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_SInh.pdf}
+%	\caption[Estimation of Model Slow Inhibitory Gain (Four Parameters Estimated)]{This figure demonstrates the estimation of the gain of slow inhibitory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EVPPe10P4N221P2S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_FInh.pdf}
+%	\caption[Estimation of Model Fast Inhibitory Gain (Four Parameters Estimated)]{This figure demonstrates the estimation of the gain of fast inhibitory neurons in the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EVPPe10P4N221P3S}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%		\includegraphics{../Images/pdf/UKF_Wendling_p_i_estimation/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_10mV__z_10s_Input.pdf}
+%	\caption[Estimation of Model Input (Four Parameters Estimated)]{This figure demonstrates the estimation of the  input to the model. The black line shows the actual value of the parameter, and the blue line the estimate. The red lines indicate the variance on the estimate made.}
+%	\label{fig: EVPPe10P4N221P4S}
+%\end{figure}
+%
+%Next the effect of noise on the parameter estimates is considered. To begin with the noise in the observations is slightly increased, and this process is continued until estimation fails. The input to the model will be included as the results improve when this is done. The normalised mean square error for varying the observation noise are demonstrated in Table~\ref{tab: WMNE}. This process is then repeated for the estimation results when the model parameters are varying within a single simulation. The results are shown in Table~\ref{tab: WMNEVP}.
+%\singlespacing
+%\small
+%\begin{center}
+%	\begin{table}
+%			\caption[Parameter Estimation Error Normalised (Varying Noise)]{For each simulation the mean square error is determined. Here the error is shown for the state estimates. The error for all states and the model output are shown for a specified noise level. Here $\hat{\delta}_{A,B,G}$ represent the normalised mean square error for parameters $A, B, G$, respectively. $\hat{\delta}_{In}$ represents the normalised error on the estimate of the model input.}
+%		\begin{tabular}{||p{4.8cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}||}\hline
+%			 \textsc{Observation Noise (mV)}  &  \textsc{$\hat{\delta}_{A}$} & \textsc{$\hat{\delta}_{B}$} & \textsc{$\hat{\delta}_{G}$} &  \textsc{$\hat{\delta}_{In}$} \\\hline\hline
+%			 0.221 & 0.016 & 0.023 & 0.098 & 2.2   \\\hline
+%			 2.21 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 11.05 & 0.016 & 0.023 & 0.098 & 2.198 \\\hline
+%		\end{tabular}
+%	 \label{tab: WMNE}
+%	\end{table}
+%\end{center}
+%\begin{center}
+%	\begin{table}
+%			\caption[Parameter Estimation Error Normalised (Varying Parameters and Noise)]{For each simulation the mean square error is determined. Here the error is shown for the state estimates. The error for all states and the model output are shown for a specified noise level. Here $\hat{\delta}_{A,B,G}$ represent the normalised mean square error for parameters $A, B, G$, respectively. $\hat{\delta}_{In}$ represents the normalised error on the estimate of the model input.}
+%		\begin{tabular}{||p{4.8cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}||}\hline
+%			 \textsc{Observation Noise (mV)}  &  \textsc{$\hat{\delta}_{A}$} & \textsc{$\hat{\delta}_{B}$} & \textsc{$\hat{\delta}_{G}$} &  \textsc{$\hat{\delta}_{In}$} \\\hline\hline
+%			 0.221 & 0.068 & 0.684 & 0.53 & 4.179 \\\hline
+%			 2.21 & 0.068 & 0.684 & 0.53 & 4.18 \\\hline
+%			 22.1 & 0.068 & 0.685 & 0.529 & 4.178 \\\hline
+%		\end{tabular}
+%	 \label{tab: WMNEVP}
+%	\end{table}
+%\end{center}
+%\normalsize
+%\onehalfspacing
+%The results displayed above may only be relevant to the particular model parameters when simulated. Therefore, estimation is performed on numerous different model parameter sets. Further to this, the effect of noise appears to be negligible in the results shown. However, for the original estimation it was assumed that the amount of noise in the system was known. This is not the case for recorded data. Therefore, estimation was performed where the expected observation error was not the same as the actual observation error. The results from the simulations performed are demonstrated in Tables~\ref{tab: WMNEVPMSE}-\ref{tab: WMNEVPMSON}.
+%
+%Lastly the effect of altering the initial parameter initiation changes. This is necessary due to the model parameters being unknown when estimating recorded data. Therefore, the results for varying the distance between the actual and initial guess of the model parameters will inform the estimation procedure on recorded data. The results for this variation are demonstrated in Table~.
+%\singlespacing
+%\small
+%\begin{center}
+%	\begin{table}
+%			\caption[Parameter Estimation Error Normalised (Varying Excitatory Gain)]{For each simulation the normalised mean square error is determined. Here the error is shown for the parameter and output estimates. The error for all states and the model output are shown for different model parameter values. Here $\hat{\delta}_{A,B,G}$ represent the normalised mean square error for parameters $A, B, G$, respectively. $\hat{\delta}_{In}$ represents the normalised error on the estimate of the model input. The results from this table demonstrates the results when the Excitatory gain is varied. For all these simulations $B$ =10 and $G$ = 15.}
+%		\begin{tabular}{||p{5cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}||}\hline
+%			 \textsc{Excitatory Gain (mV)}  & \textsc{$\delta_{Out}$} & \textsc{$\hat{\delta}_{A}$} & \textsc{$\hat{\delta}_{B}$} & \textsc{$\hat{\delta}_{G}$} &  \textsc{$\hat{\delta}_{In}$} \\\hline\hline
+%			 3 & 0.131 & 0.099 & 0.089 & 0.155 & 2.083 \\\hline
+%			 4 & 0.163 & 0.022 & 0.029 & 0.179 & 1.988 \\\hline
+%			 5 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 6 & 0.329 & 0.012 & 0.019 & 0.045 & 1.555 \\\hline
+%			 7 & 0.472 & 0.015 & 0.012 & 0.066 & 1.42 \\\hline
+%		\end{tabular}
+%	 \label{tab: WMNEVPMSE}
+%	\end{table}
+%\end{center}
+%\begin{center}
+%	\begin{table}
+%			\caption[Parameter Estimation Error Normalised (Varying Slow Inhibitory Gain)]{For each simulation the normalised mean square error is determined. Here the error is shown for the parameter and output estimates. The error for all states and the model output are shown for different model parameter values. Here $\hat{\delta}_{A,B,G}$ represent the normalised mean square error for parameters $A, B, G$, respectively. $\hat{\delta}_{In}$ represents the normalised error on the estimate of the model input. The results from this table demonstrates the results when the sow inhibitory gain is varied. For all these simulations $A$ =5 and $G$ = 15.}
+%		\begin{tabular}{||p{3.25cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}||}\hline
+%			 \textsc{Slow Inhibitory Gain (mV)}  & \textsc{$\delta_{Out}$} & \textsc{$\hat{\delta}_{A}$} & \textsc{$\hat{\delta}_{B}$} & \textsc{$\hat{\delta}_{G}$} &  \textsc{$\hat{\delta}_{In}$} \\\hline\hline
+%			 0 & 0.287 & 0.411 & N/A & 0.104 & 20.72 \\\hline
+%			 5 & 0.385 & 0.054 & 0.084 & 0.166 & 22.67 \\\hline
+%			 10 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 15 & 0.21 & 8.2e-3 & 0.03 & 0.114 & 0.846 \\\hline
+%			 20 & 0.219 & 5.5e-3 & 0.051 & 0.157 & 0.976 \\\hline
+%			 25 & 0.229 & 7.6e-3 & 0.123 & 0.176 & 2.741\\\hline
+%			 30 & 0.242 & 0.012 & 0.24 & 0.18 & 3.546 \\\hline
+%			 35 & 0.27 & 0.013 & 0.305 & 0.183 & 3.037 \\\hline
+%			 40 & 0.3 & 0.174 & 0.386 & 0.156 & 2.016 \\\hline
+%		\end{tabular}
+%	 \label{tab: WMNEVPMSSI}
+%	\end{table}
+%\end{center}
+%\begin{center}
+%	\begin{table}
+%			\caption[Parameter Estimation Error Normalised (Varying Fast Inhibitory Gain)]{For each simulation the normalised mean square error is determined. Here the error is shown for the parameter and output estimates. The error for all states and the model output are shown for different model parameter values. Here $\hat{\delta}_{A,B,G}$ represent the normalised mean square error for parameters $A, B, G$, respectively. $\hat{\delta}_{In}$ represents the normalised error on the estimate of the model input. The results from this table demonstrates the results when the fast inhibitory gain is varied. For all these simulations $A$ =5 and $B$ = 10.}
+%		\begin{tabular}{||p{3cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}||}\hline
+%			 \textsc{Fast Inhibitory Gain (mV)}  & \textsc{$\delta_{Out}$} & \textsc{$\hat{\delta}_{A}$} & \textsc{$\hat{\delta}_{B}$} & \textsc{$\hat{\delta}_{G}$} &  \textsc{$\hat{\delta}_{In}$} \\\hline\hline
+%			 0 & &&&& \\\hline
+%			 5 & &&&& \\\hline
+%			 10 & &&&& \\\hline
+%			 15 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 20 & 0.231 & 0.01 & 0.02 & 0.141 & 1.875 \\\hline
+%			 25 & 0.235 & 6.9e-3 & 0.012 & 0.248 & 1.161 \\\hline
+%			 30 & 0.24 & 0.022 & 0.016 & 0.294 & 1.696 \\\hline
+%			 35 & 0.24 & 8.6e-3 & 0.062 & 0.323 & 0.896 \\\hline
+%			 40 & 0.268 & 0.011 & 0.115 & 0.384 & 1.301 \\\hline
+%		\end{tabular}
+%	 \label{tab: WMNEVPMSFI}
+%	\end{table}
+%\end{center}
+%\begin{center}
+%	\begin{table}
+%			\caption[Parameter Estimation Error Normalised (Varying Expected Observation Noise)]{For each simulation the normalised mean square error is determined. Here the error is shown for the varying expected observation noise values as a percentage of the actual observation noise. The error for all states and the model output are shown for different model parameter values. Here $\hat{\delta}_{A,B,G}$ represent the normalised mean square error for parameters $A, B, G$, respectively. $\hat{\delta}_{In}$ represents the normalised error on the estimate of the model input. For all these simulations the noise is set to 2.2mV.}
+%		\begin{tabular}{||p{3.8cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}||}\hline
+%			 \textsc{Observation Noise (Percentage of Actual Noise)}  & \textsc{$\delta_{Out}$} & \textsc{$\hat{\delta}_{A}$} & \textsc{$\hat{\delta}_{B}$} & \textsc{$\hat{\delta}_{G}$} &  \textsc{$\hat{\delta}_{In}$} \\\hline\hline
+%			 0 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 25 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 50 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 75 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 100 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 125 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 150 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 175 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 200 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2\\\hline
+%			 300 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 400 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 500 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 600 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 700 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 800 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 900 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2 \\\hline
+%			 1000 & 0.223 & 0.016 & 0.023 & 0.098 & 2.2\\\hline			 
+%		\end{tabular}
+%	 \label{tab: WMNEVPMSON}
+%	\end{table}
+%\end{center}
+%\normalsize
+%\onehalfspacing
+%
+%\subsubsection{Estimation of recorded iEEG}
+%
+%\subsection{DC offset}
+%
+%Results from recorded iEEG show that a bias occurs on the recorded signal. Of interest is the fact that in some seizures a shift in this bias occurs at seizure onset, and again when clinical manifestations are observed.

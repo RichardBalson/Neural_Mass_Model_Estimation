@@ -1,0 +1,212 @@
+\section{Literature Review}
+
+\textbf{This is an outline for what I want to say, see each sentence as a dot point.}
+
+\red{Numerous models of the brain exist.}
+	These models describe activity occurring in the brain in terms of physiologically relevant parameters.
+	All of these models make assumptions about the dynamics in the brain, which makes it possible to create  generic model of the brains activity.
+
+\red{The scale of these models is relevant to allow for an accurate description of the observations.}
+	Different models describe different spatial scales of neural activity.
+	The model used for needs to be chosen based on the type of recordings made.
+
+\red{Epilepsy affects about 1\% of the population and is not well understood.}
+	Seizures are, at present, unpredictables.
+	Model estimation can be used for predicting and detecting seizures.
+	These seizures provide an opportunity to determine the efficacy of model estimation, as seizure activity is often distinctly different from normal brain activity.
+	
+\red{Seizure detection algorithms that are currently used are...}
+
+\red{None of these methods is capable of detecting seizures reliably in the tetanus toxin model of epilepsy.}
+	Model estimation may provide a method to detect, and possibly predict when these seizures are about to occur.
+	If successful this could drastically improve the standard of living for epilepsy patients, as well as improve our understanding of epilepsy as a disease.
+	
+\red{Models may allow for methods to be developed to allow for this prediction of seizures to be possible.}
+	The transition from normal to seizure activity cannot be instantaneous.
+	Current methods are not always able to observe this transition.
+	Models may allow us to do so.
+
+\red{Model scales are important when considering what can be determined.}
+	The scale of the model also determines how much information we can obtain about the dynamics in the brain. 
+	The type of recordings made also affect the scale of model used. 
+
+\red{Smaller scale more detail larger scale less detail.}
+	Small scale models describe physiology such as ion concentrations and individual neuron membrane potentials.
+	Large scale models describe physiology such as regional activity and connectivity between regions of the brain.
+
+\red{Focal epilepsy is a disease caused by smaller regions of the brain.}
+	Temporal lobe epilepsy where the hippocampus is the seizure focus is the most refractory epilepsy. 
+
+\red{Micro scale models describe activity of individual neurons and are relevant for voltage clamp recordings or deconstructed iEEG recordings.}
+	Examples include hodgkin and huxley that describe membrane potentials in terms of ion concentrations.
+
+\red{Macros scale models describe the activity of brain networks, and are relevant for EEG recordings.}
+	Examples include source localisation algorithms which attempt to use EEG to determine the seizure focus.
+
+\red{Meso scale models describe the activity of small region of the brain, and are relevant for iEEG recordings.}
+	These models describe iEEG activity in terms of the balance between excitation and inhibition.
+	
+\red{The neural mass model is an example for a meso scale model.}
+  This model is capable of mimicking iEEG activity by altering the balance between excitation and inhibition.
+  A model developed by Wendling has been shown to mimic activity from the hippocampus of an epileptic patients by altering the balance between excitation an inhibition.
+
+\red{Model estimation can be achieved by numerous methods.} 
+	Most of these methods are recursive methods where parameters are altered based on an algorithm and the resulting parameters are then used to simulate the observations. 
+	The simulated observations are then compared to the actual observations and then the parameters are altered accordingly.
+
+\red{Models of the brain are nonlinear; therefore, linear methods are not considered. }
+	This reduces the nu,ber of estimation methods than can be considered.
+	Two that are generally used are the genetic algorithm or multiple shooting.
+	These two methods are good for estimating parameters over stationary epochs.
+	They are computationally intensive.
+
+\red{Unscented Kalman filter can determine model parameters over each recording made.}
+	It does so by making use of an unscented transform which Cretans the nonlinearity of the model considered.
+	The correction step of the kalman filter is then used to update the prediction step as per the normal linear kalman filter.
+
+\red{The brain is not stationary; however over small periods it can be considered to be so. Therefore, all three methods can be used.}
+	However, if we are intereseted in the transitions between normal and seizure, these stationary epochs do not describe this well.
+	Therefore, the UKF is the best method for modeling the transition between normal and seizure activity. 
+
+\red{Convergence is guaranteed with the genetic algorithm, but not for the UKF.}
+	Therefore, it is useful to compare the results from the UKF to the genetic algorithm.
+	Further, the UKF can be tested on simulated data to determine its estimation bounds.
+	
+
+\red{The UKF was originally used for parameter estimation by...}
+	It assumes that parameters are slowly varying compared to the model states.
+	This allows for these parameters to slowly alter in time.
+
+%\section{Prediction and Detection of Seizures}
+%\label{sec: Prediction}
+%
+%Seizure detection algorithms are used both on line and off line. On line here indicates that detection occurs while recording are being made. Off line indicates that detection is done after recordings have been made. On line applications of the algorithm include the detection of seizure in order to determine when to stimulate the brain. As is the case with responsive stimulation, which is not considered in this study. Off line applications of seizure detection algorithms include the marking of seizures in order to reduce the analysis time for particular EEG data sets. These seizure detection algorithms need to be calibrated for each particular \textsl{in vivo} model they are used on, and based on the type of recordings made. There is much literature on seizure detection algorithms~\citep{nelson2011closed}. However, at present there are no seizure detection algorithms that have been shown to effectively detect the TT model's seizures. Therefore, seizure detection algorithms will no longer be discussed.
+%
+%A major advance that is currently being worked on is the prediction of seizures. If it is possible to predict when a seizure is about to occur, necessary treatment can be manually or automatically provided to the patient. This could help in the reduction of seizure frequency, as well as improve the living standards of epilepsy patients. Further to this, if a patient is certain of when a seizure is about to occur then their standards of living can increase. In particular, these patients will no longer be restricted from performing task such as driving. 
+%
+%Currently, research shows that specific neural mass models of epilepsy alter as a seizure is approaching~\citep{wendling2005interictal} and, with current techniques, these model estimations can be performed in real time. Therefore, it may be possible to use model estimations to predict, with greater accuracy, when seizures are about to occur. This knowledge could help with preventing seizures from occurring, and if not, at least inform the patient if a seizure is about to occur. However, if these computational models are to be used for this purpose then it needs to be shown that they can predict all seizures. Section~\ref{sec: Computational} discusses some computational models that could be used for this purpose.
+%
+%\section{Computational Models of the Brain}
+%\label{sec: Computational}
+%
+%Computational models of the brain are useful for describing electrical activity recorded from the brain, as changes in the physiological parameters in these models. By doing so it is possible to infer changes in physiology that need to occur in the brain in order for a seizure to manifest. These computational models are necessary as all of the dynamics of the brain cannot be directly measured -- it is impossible, at present, to measure the activity of every neuron in the brain. In order to estimate these dynamics, a model of the behaviour of the brain is necessary~\citep{wendling2008computational}.
+%
+%Three different scales of models have been defined (Figure~\ref{fig: Model_scales}). Each of these model scales is capable of describing different types of recording that are made from the brain. Meso-scale models describe the dynamics of columns of neurons and are capable of replicating recorded iEEG. Micro-scale models describe the dynamics of individual neurons, and are capable of replicating activity recorded from neuronal voltage clamps. Macro-scale model describe the dynamics of large networks within the brain, and are can replicate recorded scalp EEG.
+%
+%There are numerous computational models available that all have their applications. However, only a few of these models will be discussed in this section, and emphasis will be placed on meso-scale models, as the recording being made for this study are iEEG. For the interested reader, more models are described in~\cite{wendling2008computational}.
+%
+%\begin{figure}[htbp]
+%	\centering
+%		\includegraphics[width=0.60\textwidth]{jpg/Model_scales.jpg}
+%	\caption[Computational Model Scales]{In this figure, the three different model scales are demonstrated as well as what these models are capable of describing. The three different scales that are described are macro, micro and meso-scopic. Each of which is capable of describing different types of recordings made from the brain. Image from: $http://www.springerimages.com/Images/Biomedicine/1-10.1007_s11571-008-9063-z-3$}
+%	\label{fig: Model_scales}
+%\end{figure}
+%
+%
+%%For a brief overview of model scales refer to Table~\ref{tab: Computational}.
+%%\singlespacing
+%%\small
+%%\begin{center}
+%%	\begin{table}
+%%		\begin{tabular}{||p{5cm}||p{5cm}|p{5cm}||}\hline
+%%			 \textsc{Computational Model Scale}  & \textsc{What does it model} & \textsc{Good model for}   \\\hline\hline
+%% 			 Micro Scale & Individual neurons, ion concentrations & Focal epilepsy \\\hline
+%% 			 Macro Scale & Network connectivity	& Generalised epilepsy \\\hline
+%% 			 Meso Scale & Cortical columns	& Focal and generalised epilepsy \\\hline		      
+%%		\end{tabular}
+%%		\label{tab: Computational}
+%%		\caption[Computational Model Scales]{Computational model scales and uses.}
+%%	\end{table}
+%%\end{center}
+%%\normalsize
+%%\onehalfspacing
+%
+%\subsection{Micro-scale Models}
+%\label{ssec: Micro}
+%
+%On a micro-scale, individual neurons are modeled. This involves mathematical descriptions of ion concentrations, membrane potentials and ionic currents~\citep{hodgkin1952quantitative}. Recent studies using micro scale models have demonstrated that there is an increase in extracellular potassium as a seizure is about to occur~\citep{ullah2010assimilating}.
+%
+%
+%\subsection{Macro-scale Models}
+%\label{ssec: Macro}
+%
+%Macro-scale models describe how the brain is connected, and how each of the nodes in this network affect the brain. For example, how one cortical column connects to others, and are these connections excitatory or inhibitory. However, this provides little insight into the mechanisms that occur within the epileptic focus; therefore, at present, they will not be considered. 
+%
+%\subsection{Meso-scale Models}
+%\label{ssec: Meso}
+%
+%Meso-scale models describe activity of cortical regions. This can include modeling effects such as excitability and connectivity within a neural mass. 
+%
+%An example of a meso-scale model is the neural mass model, which models excitatory and inhibitory responses of neural populations. Results from these models have demonstrated that as a seizure is about to occur the excitability of a neural mass increases, and inhibition decreases~\citep{wendling2005interictal}. Other meso-scale models have been described and include cortico-thalamic neural models~\citep{robinson2001prediction}, which will not be considered due to lack of recordings from the cortex; and spatial models of the cortex and thalamus~\citep{wilson1973mathematical}. The advantage of the neural mass model over these other models is that it has been successfully used to describe activity recorded from the hippocampus which, for this study, is the region of the brain where recordings will be made from. 
+%
+%Recent studies have demonstrated that networks of micro-scale models are capable of reproducing the activity observed in meso-scale models. These studies showed that by changing similar physiological parameters the models can generate similar dynamics. 
+%
+%\subsubsection{Neural Mass Model}
+%
+%\begin{figure}[ht]
+%	\centering
+%		\includegraphics[width=0.8\textwidth]{../Images/jpg/Neural_mass_model.jpeg}
+%	\caption[Neural Mass Model Flow Chart]{The neural mass model represents the activity observed within a single cortical column, with excitatory and slow inhibitory effects demonstrated. The effect from other cortical columns is modeled by an excitatory input. Excitatory effects are shown by black arrows, and inhibitory effects by red arrows. The output of the model is the membrane potential of the pyramidal neuron population.}
+%\label{fig: Neural}
+%\end{figure}
+%
+%The neural mass model (Figure~\ref{fig: Neural}) describes the dynamics of a cortical column. These dynamics are modeled by connections between clusters of pyramidal neurons (PN) and inhibitory interneurons~\citep{wendling2002epileptic}.
+%
+%The possible effect these neurons could have on each other are described as either excitatory or inhibitory~\citep{jansen1995electroencephalogram}. In a newer model inhibitory interneurons are further broken down into fast somatic inhibition and slow dendritic inhibition~\citep{wendling2002epileptic}. This split is consistent with observations made in the hippocampus~\citep{white2000networks}. This model will be referred to as the extended neural mass model. The extended neural mass model has been shown to replicate recorded iEEG from the hippocampus with a great degree of accuracy~\citep{wendling2005interictal}.
+%
+%Neural populations in the extended neural mass model are assumed to be connected in a specific manner. In particular, pyramidal cells provide excitatory input to excitatory as well as slow and fast inhibitory interneurons. The excitatory interneurons are then modeled to excite pyramidal cells, whereas fast and slow inhibitory interneurons are modeled to inhibit these cells. The last connection that is modeled is the inhibition of fast inhibitory interneurons by slow inhibitory interneurons. 
+%
+%The connections between these populations are modeled by a connectivity constant. This connectivity constant indicates the relative effect that each neural population will have on the other and are unidirectional. This is illustrated in Figure~\ref{fig: Neural}, where two populations are connected by two arrows, each one indicating the connectivity from the source population to the affected population.
+%
+%The simulated data from the extended neural mass model is similar to the six types -- background EEG, sporadic spikes, sustained discharge of spikes, slow rhythmic, low voltage rapid and slow quasi sinusoidal --  of activity observed in iEEG from the hippocampus. In this model the different types of activity are obtained by changing lumped parameters, which are indicative of the populations synaptic gains. With specific synaptic gains, the activity simulated in the model appears to be able to replicate the recorded iEEG as a seizure is manifesting and occurring. This is not the case with the neural mass model which is not capable of producing low voltage rapid activity~\citep{wendling2002epileptic}. 
+%
+%The extended neural mass model model is described by ten ordinary differential equations~\citep{wendling2002epileptic}. These equations describe the excitatory and inhibitory effects of the populations in a specific neural mass. The neural mass also has connections with other neuronal populations, which are modeled by an excitatory input. This excitatory input affects the PN population. 
+%
+%\subsection{Summary of Computational Models of the Brain}
+%\label{ssec: SummaryModel}
+%
+%Micro-scale models are capable of modeling ion concentrations within specific neurons. However, for this to be achieved the firing rate of individual neurons needs to be known. Macro-scale models are capable of modeling network activity of the brain, but these models require recordings from many regions of the brain. For this study iEEG data will be recorded, which does not provide data about individual neuronal firing, or large network dynamics. Therefore, micro and macro-scale models are at present not considered.  
+%
+%Two different meso-scale models were discussed: the extended neural mass model and the neural mass model. The extended neural mass model will initially be used, as the neural mass model is incapable of reproducing all iEEG activity observed in seizure patients when only synaptic gains are altered. The extended neural mass model can be considered to be a good model of iEEG as it is capable of reproducing all types of activity that are observed in these recordings. However, the fact that the model is capable of replicating all observed activity does not imply that the model provides an accurate representation of the changes in physiology that occur during the transition from normal to seizure activity.
+%
+%\section{Parameter Estimation}
+%\label{sec: Parameter} 
+%
+%In order to gain insight from the computational model used, the parameters from this model need to be estimated. This estimation process results in parameters that describe the recorded iEEG as accurately as possible. If the computational model used is accurate then this estimation can give insights into the dynamics that are occurring in the brain.
+%
+%Due to the nonlinear nature of the brain, computational model parameters can be difficult to estimate. However, new methods have emerged in order to find an optimal parameter space, that is capable of characterizing the brains nonlinear activity, with as small an error as possible. 
+%
+%Two different types of estimation will be looked at: linear and nonlinear estimation. Linear estimation is used for a system that is described by linear mathematical equations, whereas nonlinear estimation is used when the process is described nonlinearly. 
+%
+%\subsection{Linear Estimation}
+%\label{ssec: Linear}
+%
+%Linear estimation can be used when the system that is being modeled is linear. Linear estimation can also be extended to cases where the model is weakly nonlinear, by methods that will be mentioned.
+%
+%\subsubsection{Kalman Filtering}
+%
+%Kalman filtering is an estimation method whereby parameters and states can be estimated with noisy measurements. Unlike the least square method Kalman filtering is capable of taking into account the dynamics of the modeled system~\citep{kalman1960new}. Basically, this method puts more weight on information with low noise and less weight on high noise measurements. With a high noise measurement the state estimate is approximated to be the previous estimate. With a low noise measurement the estimate is adjusted based on the recording. Similarly, if the noise of the state estimate is high the estimation of the current state will be largely based on the current measurement, with little value put on the previous estimate~\citep{kalman1960new}.   
+%
+%In cases with systems with mild nonlinearities the extended Kalman filter can be used~\citep{voss2004nonlinear}. In the extended Kalman filter, the nonlinearity of the system is extended by means of a first order Taylor series. By applying a first order Taylor series the nonlinear equation is made linear, and the normal Kalman filtering process can be used. For systems where a first order approximation is not adequate, nonlinear estimation techniques need to be used, a good example of this is the extended neural mass model (Section~\ref{ssec: Meso}). Linear methods will no longer be considered, due to the nonlinear nature of the model being considered, in this study. 
+%
+%\subsection{Nonlinear Estimation}
+%\label{ssec: Nonlinear}
+%
+%In linear estimation the optimal parameters can be estimated by simply increasing or decreasing their values until the error function is minimised. However, for a nonlinear system, the final value that a parameter converges to may occur at local minima within the error function. Therefore, linear estimation methods should not be used for nonlinear systems~\citep{voss2004nonlinear}.
+%
+%\subsubsection{Evolutionary Algorithm}
+%
+%An evolutionary algorithm is a method that can be used to estimate parameter values of a nonlinear system. Evolutionary algorithms make use of the idea behind evolution and natural selection. Parameters are set to evolve according to probabilities of mutation or crossover. This iterative process continues until the parameters converges to an optimal solution~\citep{wendling2005interictal}.
+%
+%
+%\subsubsection{Unscented Kalman Filtering}
+%
+%The unscented Kalman filter (UKF) retains the nonlinearity of the model, unlike the extended Kalman filter. The only assumption made is that the states and parameters of the system can be modeled as a Gaussian probability distribution. Thereafter, the solution of this model is similar to the Kalman filter, except that it estimates states based on expectations from 2n+1 points, for a n dimensional problem. UKF can be used for highly nonlinear processes like the brain, as it takes into account the nonlinearity of the system~\citep{ullah2010assimilating}.
+%
+%\subsubsection{Particle Filter}
+%
+%Another estimation method that is often used is the particle filter. However, at present, this model will not be considered, due to the fact that it is highly computationally intensive. 
+%
+%\subsection{Summary of Estimation Methods}
+%
+%The nonlinear nature of the model being used makes linear estimation methods inadequate for this system. Three different methods of nonlinear estimation have been discussed, all of which are capable of estimating the parameters for this system. However, the particle filter is highly computationally intensive, and, at present, will not be considered. For this study, work done by our group will be used. The estimation procedure currently used by our group is the UKF.

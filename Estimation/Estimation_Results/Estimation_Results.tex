@@ -1,0 +1,95 @@
+%% Based on a TeXnicCenter-Template by Gyorgy SZEIDL.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%------------------------------------------------------------
+%
+\documentclass[a4paper,twoside,10pt]{article}%
+%Options -- Point size:  10pt (default), 11pt, 12pt
+%        -- Paper size:  letterpaper (default), a4paper, a5paper, b5paper
+%                        legalpaper, executivepaper
+%        -- Orientation  (portrait is the default)
+%                        landscape
+%        -- Print size:  oneside (default), twoside
+%        -- Quality      final(default), draft
+%        -- Title page   notitlepage, titlepage(default)
+%        -- Columns      onecolumn(default), twocolumn
+%        -- Equation numbering (equation numbers on the right is the default)
+%                        leqno
+%        -- Displayed equations (centered is the default)
+%                        fleqn (equations start at the same distance from the right side)
+%        -- Open bibliography style (closed is the default)
+%                        openbib
+% For instance the command
+%           \documentclass[a4paper,12pt,leqno]{article}
+% ensures that the paper size is a4, the fonts are typeset at the size 12p
+% and the equation numbers are on the left side
+%
+\usepackage{amsmath}%
+\usepackage{amsfonts}%
+\usepackage{amssymb}%
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[round]{natbib}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage{setspace}
+\doublespacing
+\usepackage{caption,sansmath}
+%\usepackage{subcaption}
+\usepackage{subfigure}
+
+%-------------------------------------------
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\graphicspath{{../../Images/Images/}}
+
+\geometry{top=3cm,bottom=3cm,left=2.5cm,right=3.5cm}
+
+\newcommand\iref{\textcolor{red}{ref}}
+\newcommand\red{\textcolor{red}}
+\newcommand\dean{\textcolor{blue}}
+
+
+\begin{document}
+
+\title{}
+\author{R.S. Balson and D.R. Freestone}
+%\date{}
+\maketitle
+
+%\ref{sec:Lit}  Reference a labelled section "lit".
+
+\begin{abstract}
+This report demonstrates that it is theoretically possible to recover the parameters that are important for the generation of epileptic seizures from the neural mass model of the hippocampus, that was published by~\cite{wendling2002epileptic}. The neural mass model is capable of reproducing the key features of electrographic seizures recorded from the hippocampus. The parameters of the model control the type of behaviour the model output exhibits, such as normal background, early ictal (low amplitude, high frequency) and ictal EEG (regular spike-wave discharges). The ability to infer parameters of this model from subject-specific data will enable imaging of physiological characteristics that reveal the underlying mechanisms for seizure initiation and termination. Furthermore, the ability to image physiology using EEG data will reveal the underlying mechanisms of therapies, such as anti-convulsant medication and modulatory deep brain stimulation.
+%This document contains some of the results from estimating the neural mass model described by Wendling et al. in 2002. In particular, the estimation of parameters from the model is shown under different noise conditions, and initial parameter guesses.
+
+\end{abstract}
+
+\include{Original_c}
+
+\bibliographystyle{apalike}
+		
+\bibliography{Boon}
+
+\end{document}

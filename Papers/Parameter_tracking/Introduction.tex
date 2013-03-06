@@ -1,0 +1,108 @@
+\section{Introduction}
+
+\red{Aims}
+
+\red{Estimate model parameters from a neural mass model of the hippocampus.}
+Epilepsy is not well understood. Approximately one third of patients with epilepsy are refractory to treatment, and not much is understood about the mechanisms underlying seizures. In this paper, a new method to image aspects of the brain is introduced. This method involves the application of a well known neural mass model with a relatively new estimation technique. In particular, the estimation of physiologically relevant parameters from a neural mass model of the hippocampus~\citep{wendling2002epileptic} is considered, using an unscented Kalman filter~\citep{voss2004nonlinear}. 
+
+\red{To improve the understanding of epilepsy and improve the outcome of epilepsy patients.}
+By estimating the physiologically relevant parameters from the neural mass model of the hippocampus, it will be possible to image the changes occurring in the brain prior to seizure. This will be achieved by estimating model parameters based on electrographic recordings of seizures recorded from the hippocampus. Further, this method can be applied to determine the effect that treatment has on the physiological parameters. Imaging the brain in this manner will make it possible to titrate therapies that are patient specific and therefore more efficacious. For example, if it is observed that the model parameter describing inhibition decreases prior to seizure, a treatment that has the opposite effect on the model parameter can be determined and used on the specific patient.
+
+%\red{Why?}
+%
+%\red{The brain is not well understood, and the mechanism behind the efficacy of neurological treatments are not well understood.}
+%Estimation of neural mass models using electrographic data, can allow imaging of altering brain dynamics. Imaging the brain in such a manner can help develop our understanding of its functioning. For example, this kind of imaging can elucidate some of the mechanism responsible for the brain's transition from normal to ictus.
+%
+%\red{Particularly true for epilepsy, where the cause of seizures is unknown, and the effect that treatments have on the brain are not understood.}
+%Further, imaging techniques using model estimation can help with the development and evaluation of neurological treatments. This can be done by firstly describing the characteristic of the disorder using the model estimation. Then determining whether the treatment used alters the model estimation in a manner that prevents the brain from returning to the original characteristics that describe the disorder.
+%
+%\red{With these imaging techniques some of these mechanisms may be elucidated, and it will be possible to develop better, and more targeted neurological treatments.}
+%Imaging the brain in order to characterise and then compare the effects of treatments will allow for more targeted treatments with less side effects. For refractory disorders, imaging using model estimation can allow for quicker development and evaluation of treatments.
+
+%\red{This will help with the development of better anti-convulsant therapies, especially for modulatory electrical stimulation of the brain.}
+%When considering epilepsy, using model estimation to characterise the disorder and the effect of proposed treatment will be invaluable. Consider for example modulatory electrical stimulation of the brain for epilepsy treatment. The number of possible treatment strategies for electrical stimulation is near infinite, and very little is understood about how changing stimulation alters the effect it has. By imaging the effect stimulation has on the brain, it may be possible to quickly evaluate electrical stimulation treatments, and determine which treatment will be best for the patient considered.
+
+\red{How has this been achieved previously?}
+
+Neural mass models were originally developed by Lopez and Freeman and were extended by Jansen and Rit. The model described by Jansen has been capable of replicating key characteristics of EEG by altering the balance between excitation and inhibition. However, one key characteristic could not be reproduced when considering recording from the hippocampus, low amplitude high frequency EEG. In order to account for this, the model was again extended by Wendling. This extension involved describing a new inhibitory population. This population was added as recent research had demonstrated that the effect of inhibition in the hippocmapus could have two distinctly different time delays. This time delay indicates the delay it takes for neural firing at one population to affect a different cluster of neurons.  
+
+\red{This model is capable of replicating key characteristics observed in EEG prior to and during seizure.}
+
+The neural mass model of the hippocampus is capable of replicating key features observed in EEG prior to, during and post seizure. The model can replicate these features by adjustment of parameters that describe the balance between excitation and inhibition in the modeled region of the brain. Although the model is described in terms of excitation, inhibition and neural populations it is not an accurate description of the brain. However, it is a good descriptor of EEG recorded from the hippocampus. Therefore, this model can be used to image the continuously altering dynamics in the brain prior to and during seizure.
+
+\red{Previous work on estimating the neural mass model of the hippocampus has been done using a genetic algorithm.}
+
+The neural mass model of the hippocampus has previously been estimated using the genetic algorithm~\citep{wendling2005interictal}. The genetic algorithm is capable of estimating model parameters using recursion. This makes the method accurate but time consuming. Therefore, results from studies using the genetic algorithm are often limited. The result of which is incomplete characterisation of EEG, with no evidence of the charcteristics observed during the transitions from normal to ictal EEG being unique.
+
+%The genetic algorithm is accurate; however, it is very time consuming due to its computational complexity.
+
+%Due to the computation time this technique cannot be used over large data sets
+
+\red{What is being done, and why is it better or different?}
+
+
+Artificial EEG is simulated using the neural mass model of the hippocampus, and its physiologically relevant parameters are estimated using the unscented Kalman filter.
+
+In this paper, the results from estimating the neural mass model of the hippocampus using an unscented Kalman filter are discussed. The filter, unlike the genetic algorithm, does not rely on recursion and is therefore less time consuming. This comes at the cost of accuracy. This paper looks at the accuracy of the filter under numerous conditions to determine how robust it is. If the unscented Kalman filter is accurate at estimating model parameters then this method could be used further to help characterise full EEG data sets, and allow for treatments to be evaluated and developed.
+
+In the methods section, a description of the neural mass model of the hippocampus is presented, as well as the equations used to simulate the model. Further, the formulation of the unscented Kalman filter for the neural mass model of the hippocampus is described. In the results section the performance of the algorithm under numerous conditions are demonstrated. Lastly, in the discussion an evaluation of the performance of the filter is provided, discussing whether this method is a viable way forward to use model estimation to help image the effect that disorders and treatments have on the brain.  \\\\\\\\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Models of the brain have been developed since the early 1970's. These models allow assumptions about the underlying physiology in the brain to be made, without having to directly observe them. This is invaluable when considering the nature of the brain, where numerous dynamics are unobservable. Further, these models allow subtle changes in the underlying physiology of the brain to be quantified. This is in particularly valuable when considering neurological disorders such as epilepsy that are not well understood. The insight provided by these models may also be usefully in developing methods to predict when seizures are about to occur.\red{Why are models necessary.}
+
+Neural mass models are capable of mimicking EEG activity. They do so by altering the balance between excitation and inhibition. A model described by \cite{jansen1995electroencephalogram} was shown to be able to mimic alpha rhythm activity often observed in EEG. This model was then expanded by \cite{wendling2002epileptic} in which a secondary inhibitory mechanism was added to the model described by \cite{jansen1995electroencephalogram}. This secondary inhibitory mechanism was added to allow the model to be more descriptive of the physiology of the hippocampus. Using the model the Wendling group showed that observed activity in the epileptic brain could be mimicked by altering the balance between the excitatory and inhibitory mechanisms. This model will be referred to as the extended neural mass model.\red{Brief introduction to neural mass models.}
+
+By estimating parameters from the extended neural mass model it was shown that seizure activity could indeed be replicated by altering the excitation inhibition balance~\cite{wendling2005interictal}. In this study, parameters were estimated over epochs that are considered to be stationery. However, the physiology of the brain is continuously changing, and these changes may provide further insight into the cause of seizures in the epileptic brain. In this study an estimation method for the extended neural mass model is developed using an unscented Kalman filter (UKF). This estimation method is then tested on simulated data created using the extended neural mass model. The robustness of the UKF is then determined by altering various initial conditions in the UKF, as well as the expected observation noise. The estimation method is then used to analyse recorded iEEG from an \textsl{in vivo} model of epilepsy. \red{Brief introduction into what has been done with models using estimation, and how this can be improved.}
+
+
+Models allow us to gain insight into unobserved dynamics. 
+	This is particularly useful when the number of observations we can make are minimal.
+	This is the case with the brain where it is currently not possible to monitor each individual neuron or large regions of the brain with accuracy.
+
+Epilepsy is not well understood and the mechanisms responsible for seizure are unknown.
+	Models can provide insight into what is happening in the brain when a seizure occurs.
+	This can help with the development of more targeted treatments.
+	
+Models may be used to determine when seizures are about to occur, and can be use to detect seizures more reliably.
+	There is an expectation that prior to seizure dynamics in the brain alter.
+	It may be possible to determine when these dynamics alter using models of the brain; therefore, allowing seizures to be predicted.
+
+Model used needs to be relevant to the scale of recordings made.
+	Numerous models of the brain exist at varying scales.
+	For iEEG recordings it is necessary to use models of small regions of the brain, as this is the area that will be recorded from.
+	
+Neural mass models describe the dynamics of discrete regions of the brain.
+	The hippocampus is the source of seizures in numerous epilepsy patients.
+	A neural mass model described by Wendling describes the physiology of the hippocampus.
+
+Estimating model parameters using recorded iEEG allows some of the mechanism occurring in the brain to be elucidated.
+	These model parameters are descriptive of physiological mechanisms in the brain.
+	Estimating these parameters allows us to indirectly observe the underlying physiology, provided the model used is an accurate description of the region of 			interest.
+
+Estimation of parameters needs to be done for all observations to allow for full description of changes occurring in the brain.
+	Numerous studies have been done where parameters are estimated assuming that the brain is stationary in short periods.
+	It is known that the brains physiology is altering slowly compared to it firing rates and membrane potentials.
+
+The unscented kalman filter can do this estimation.
+	The filter updates parameter estimates with every observation made.
+	This allows models parameters to be tracked without assuming that the brain is stationary over short periods of recordings.
+
+In this paper the results from using the UKF for simulated data under numerous conditions is demonstrated.
+	The effect of observation noise and varying the input to the model are also determined.
+	The effect of the initial parameter selection are also determined with numerous model parameter values. 
+
+ 
+

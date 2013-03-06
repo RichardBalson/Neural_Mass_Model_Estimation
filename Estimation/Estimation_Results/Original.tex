@@ -1,0 +1,207 @@
+
+\section{Introduction}
+
+Model estimation is often achieved assuming that the observations made are stationary over some period. When considering the brain this assumption is know to be incorrect, as the physiology in the brain is continuously altering. Methods such as the genetic algorithm require epochs of stationary data to estimate the parameters of a model; one method that does not require this assumption of stationarity is the Kalman filter. The Kalman filter is capable of updating estimates based on each individual observation. This allows estimation to be performed without assuming that the observations are stationary over some period of time.
+
+The Kalman filter is most often used for estimating unknown states in a system. Recently the Kalman filter has been extended so that it can estimate model parameters. This was achieved by assuming that model parameters can be modeled as states with trivial dynamics \red{(Ullah et al.)}. 
+
+The Kalman filter therefore allows for discrete time parameter sets to be determined allowing for deeper insight into the changes occurring within the modelled system. This is of particular importance when considering systems that are not well understood. The sudden change in dynamics in these systems may be as result of a subtle changes in model parameters over longer durations, that are unobservable from observations.
+
+When considering epilepsy the mechanisms behind the occurrence of seizure's are not well understood. Modeling the dynamics of the brain as it alters from a non-seizure to seizure period will provide insight into subtle changes occurring in the brain. These modeled results may help elucidate some of the mechanism that cause seizures.
+
+However, the Kalman filter is a linear estimation method, an it is well known that the brain is highly non-linear. Therefore, an alternative to the Kalman filter needs to be considered. For this study the unscented Kalman filter (UKF) will be used. The filter uses an unscented transform to retain the non-linearity of the model.
+
+In this study the estimation of a neural mass model described by \red{Wendling} is considered. The results shown in this paper are of estimation performed on observations simulated using the model, where these observations are tainted by additive Gaussian noise. 
+
+\section{Methods}
+
+To demonstrate the viability of UKF it is used to estimated parameters based on simulated model output with additive Gaussian noise. This allows for analysis of the robustness of the algorithm given a known solution, ie the simulated outputs model parameters and states.
+
+The model considered is a neural mass model described by Wendling which is an extension of the neural mass model originally described by \red{Jansen and Rit}, based on the initial work of \red{Freeman and Lopez da Silva}. The Wendling model will be referred to as the extended neural mass model. 
+
+Neural mass models describe the balance between excitation and inhibition of small cortical regions in the brain. The output of these models is similar to observed intracranial EEG (iEEG) from the modeled region in the brain. The extended neural mass model adds a secondary inhibitory population which is called per-somatic or fast inhibition. The original inhibitory population defined in the neural mass model will be referred to as peri-dendritic or slow inhibition in this model.
+
+Adding a second inhibitory population to the extended neural mass model allows it to describe more accurately the physiology of the hippocampus, and has been shown to be more capable of mimicking observed iEEG recorded from this area.
+
+\red{Figure} shows the graphical representation of this model, which can also be described by the following set of equations: \begin{align}
+dV_{p}&= Z_{p}dt\\
+dZ_{p}&=(AaS(V_{e}-C_{4}V_{si}-V_{fi})-2aZ_{p}-a^{2}V_{p})dt\\
+dV_{e}&= Z_{e}dt\\
+\label{eqn: Wend8_4}
+dZ_{e}&=Aa((\mu +C_{2}S(C_{1}V_{p}))-2aZ_{e}-a^{2}V_{e})dt + e_{t}dW)\\
+dV_{si}&= Z_{si}dt\\
+dZ_{si}&=(BbC_{4}S(C_{3}V_{p})-2bZ_{si}-b^{2}V_{si})dt\\
+dV_{fi}&= Z_{fi}dt\\
+\label{eqn: model_simplified8}
+dZ_{fi}&=(GgC_{7}S(C_{5}*V_{p}-C_{6}V_{si})-2gZ_{fi}-g^{2}V_{fi})dt,
+\end{align} where $S(\cdot)$ is a sigmoid function originally described by \red{Freeman}. Here $V_{x}$ indicates the aggregate membrane potential of the specified neural population, where k is replaced by p, e, si and fi which represent the pyramidal, excitatory, slow inhibitory and fast inhibitory populations, respectively. Similarly $Z_{k}$ is used as a variable to describe the first derivative of the aggregate membrane potentials where p, e, si and fi are described in the same manner as for $V_{k}$. Here $e_{t}$ represents the unknown effect of the rest of the brain on the modeled cortical region and is drawn from a normal distribution with variance $\sigma$ and mean $\mu$. Notice in equation~\ref{eqn: Wend8_4} the variance and mean of the normal distribution have been split to allow for the Wiener process $dW$ to be defined over the variance only. $A$, $B$ and $G$ are the excitation, slow and fast inhibition gains. $a$, $b$ and $g$ are the time constants for the excitatory, slow and fast inhibitory populations. $C_{1}-C_{7}$ represent the connectivity constants between different neural populations. 
+
+
+The output of the model is given by:\begin{align}
+\label{eqn: WendlingOut}
+x_{out} = V_{e}-C_{4}V_{si}-V_{fi}.
+\end{align} 
+
+This equations are discretised for simulation purposes using the Euler-Mariyama method. The resulting equations used for simulation purposes are: \begin{align}
+\label{eqn: WendlingS}
+V_{p_{t+T}}&= V_{p_{t}}+TZ_{p_{t}}\\
+Z_{p_{t+T}}&= Z_{p_{t}} + T(AaS(V_{e_{t}}-V_{si_{t}}-V_{fi_{t}})-2aZ_{p_{t}}-a^{2}V_{p_{t}})\\
+V_{e_{t+T}}&= V_{e_{t}}+TZ_{e_{t}}\\
+Z_{e_{t+T}}&= Z_{e_{t}} + T(Aa(\mu +C_{2}S(C_{1}V_{p_{t}}))-2aZ_{e_{t}}-a^{2}V_{e_{t}})+e_{t}\sqrt{T}\\
+V_{si_{t+T}}&= V_{si_{t}}+TZ_{si_{t}}\\
+Z_{si_{t+T}}&= Z_{si_{t}} + T(BbC_{4}S(C_{3}V_{p_{t}})-2bZ_{si_{t}}-b^{2}V_{si_{t}})\\
+V_{fi_{t+T}}&= V_{fi_{t}} + TZ_{fi_{t}}\\
+Z_{fi_{t+T}}&= Z_{fi_{t}} + T(GgC_{7}S(C_{5}V_{p_{t}}-C_{6}V_{si_{t}})-2bZ_{fi_{t}}-g^{2}V_{fi_{t}}),
+\end{align} where $T$ is the period between solutions.
+
+The unscented Kalman filter is an extension of the standard linear Kalman filter. This estimation is based on a prediction-correction paradigm. The correction step of the unscented and standard Kalman filter are identical and are described by the following set of equations: \begin{align}
+\label{eqn: KalmanC}
+\mathbf{K} &= \mathbf{P}_{xy}^{-}(\mathbf{P}_{yy}^{-})^{-1}\\
+\mathbf{x}_{t}^{+} &= \mathbf{x}_{t}^{-} + \mathbf{K}(\mathbf{y}_{t}-\mathbf{y}_{t}^{-})\\
+\label{eqn: KalmanC3}
+\mathbf{P}_{xx}^{+} &= \mathbf{P}_{xx}^{-} - \mathbf{K}(\mathbf{P}_{xy}^{-})^{\top},
+\end{align} where $\mathbf{K}$ is the Kalman gain, $\mathbf{P}_{xy}^{-}$ is the predicted covariance of $x$ and $y$, $\mathbf{{P}_{yy}^{-}}$ is the predicted variance of $y$. $\mathbf{x}_{t}^{+}$ is the corrected estimate of the model states, $\mathbf{x}_{t}^{-}$ is the predicted value of $x$ prior to correction $\mathbf{y}_{t}$ is the observation and $\mathbf{y}_{t}^{-})$ is the predicted value of $y$ at time $t$. $\mathbf{P}_{xx}^{+}$ is the corrected estimate of the variance of $x$,  $\mathbf{P}_{xx}^{-}$ is the predicted variance of $x$. 
+
+The difference between the unscented and standard Kalman filter is in how the predicted value of the states, variances and covariances are determined. The unscented Kalman filter does the model prediction using an unscented transform. This transform propagates sigma points through the model. These sigma points are calculated as follows: \begin{align}
+\label{eqn: Unscented_Transform1}
+\mathbf{\mathcal{X}}_{n} &= \mathbf{\overline{x}}_{t} + (\sqrt{\kappa+D_{x}P})_{n} \quad n=1,\hdots,D_x\\
+\label{eqn: Unscented_Transform2}
+\mathbf{\mathcal{X}}_{n+D_{x}} &= \mathbf{\overline{x}}_{t} - (\sqrt{\kappa+D_{x}P})_{n} \quad n=1,\hdots,D_x,
+\end{align} where $\mathbf{\mathcal{X}}$  are the sigma points, $D_{x}$ is the number of states of $\mathbf{x}_{t}$. $(\sqrt{\kappa+D_{x}P})_{n}$ denotes the $n$th row or column of the matrix square root. $\overline{x}_{t}$ is the current state estimate.
+If $\kappa$ is greater than 0, then \begin{align}
+\mathbf{\mathcal{X}}_{0} &= \mathbf{\overline{x}}_{t}.
+\end{align} This process is demonstrated for a one dimensional system in Figure~\ref{fig: Sigma}.
+
+\begin{figure}
+	\centering
+		\includegraphics[height=0.3\textheight]{pdf/Sigma_Points_Mean_1_Variance_1.pdf}
+	\caption[Sigma Points]{For the Unscented Kalman Filter states are assumed to be described by a Gaussian distribution. An example is demonstrated here with a mean and variance of one. A Gaussian distribution is completely described by its mean and variance, and the unscented transform, which is described in equations~\ref{eqn: Unscented_Transform1}-\ref{eqn: Unscented_Transform2}, uses this fact to propagate specific states through the system. The states it propagates are the mean, if $\kappa$ is greater than zero, and the points one standard deviation from the mean. In the figure the mean is shown by the red circle, and the blue circles show the two points one standard deviation from the mean.}
+	\label{fig: Sigma}
+\end{figure}
+
+These sigma points are then propagated through the model, allowing the estimation to retain the non-linearity in the model. The sigma points are then used to predict the states in the next time step as follows: \begin{align}
+\mathbf{\mathcal{X}}_{n}^{-} &= b(\mathbf{\mathcal{X}}_{n})\\
+\mathbf{x}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} \mathbf{\mathcal{X}}_{n}^{-}\\
+\mathbf{\mathcal{Y}}_{n}^{-} &= c(\mathbf{\mathcal{X}}_{n}^{-})\\
+\mathbf{{y}}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} \mathbf{\mathcal{Y}}_{n}^{-}\\
+\label{eqn: statecovg}
+\mathbf{P}_{xx}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{X}}_{n}^{-}-\mathbf{x}^{-})(\mathbf{\mathcal{X}}_{n}^{-}-\mathbf{x}^{-})^{\top} +\mathbf{Q},\\
+\mathbf{P}_{xy}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{X}}_{n}^{-}-\mathbf{x}^{-}) (\mathbf{\mathcal{Y}}_{n}^{-}-\mathbf{{y}}^{-})^{\top}\\
+\mathbf{P}_{yy}^{-} &= \frac{1}{2D_{x}+\kappa}\sum_{n=1}^{2D_{x}} (\mathbf{\mathcal{Y}}_{n}^{-}-\mathbf{{y}}^{-}) (\mathbf{\mathcal{Y}}_{n}^{-}-\mathbf{{y}}^{-})^{\top} +\mathbf{R},
+\end{align} where $b(\cdot)$ is the model equations, $\mathbf{\mathcal{X}}_{n}^{-}$ is the propagated model states and $\mathbf{x}^{-}$ is the predicted value of the states at the next time step. Note that the $^{-}$ is used to indicate the prediction of the specified variable from the unscented transform. $\mathbf{\mathcal{Y}}_{n}^{-}$ describes the sigma points for the measured variables, and the function $c(\cdot)$ describes the transformation from the state variable sigma points $\mathbf{\mathcal{x}}_{n}^{-}$ to the estimate of the observation $\mathbf{\mathcal{Y}}_{n}^{-}$. $\mathbf{R}$ describes the covariance of the measurement error and $\mathbf{Q}$ describes the uncertainty in the models ability to mimic the observations. This gives an approximation of the estimate of the states based on the system. However, the observation needs to be incorporated into this estimate. This is achieved using equations~\ref{eqn: KalmanC}-\ref{eqn: KalmanC3}.
+
+In order to allow model parameters to be estimated they need to be considered as slow states, thereby creating an augmented state matrix. It is considered that these model parameters have trivial dynamics and are described as: \begin{align}
+\mathbf{\theta_{t+T}} &= \mathbf{\theta_{t}} +e_{t}),
+\end{align} where $e_{t}$~$N(0,\mathbf{\epsilon_{t}}$ is a normalised Gaussian distribution with variance $\epsilon$, and $\theta$ are the model parameters that need to be tracked. 
+
+%For this estimation procedure the effect of the values of $\kappa$ on the results is determined. In particular it is determined whether the estimation results improve when we propagate the mean through the system, kappa greater than zero, or if the results are better when the mean is not propagated, kappa equal to zero.
+
+The next issue to consider whether the input to the model should be estimated, similar to a model parameter, or if the uncertainty in the model, $Q$, should be increased to account for variations to the input to the modeled cortical region. To achieve this firstly the input to the model is assumed to be unknown and the model uncertainty in the estimates is increased to account for the variation in the input from its mean. Secondly, the input is treated as a state, similar to the model parameters, and it is estimated. A comparison between the results for both methods will be shown.
+
+\section{Estimation Results}
+
+Initially only the estimation of states is considered. Firstly, the input is assumed to be constant and then adjusted until it is at its actual value used for simulation purposes. The results are shown in figures~\ref{fig: OutputSO}-\ref{fig: AllStates}.
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_0PE_10_N_10mV_Output.pdf}
+			\caption{Estimation results for the observations made when only the fast states of the model are unknown. Here the Gaussian noise added to the observations is minimal.}
+	\label{fig: OutputSO}
+\end{figure}
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_0PE_10_N_10mV_AS.pdf}
+		\caption{Estimation results for the states of the model describing the aggregate membrane potentials of the modeled populations. Vp, Ve, Vsi and Vfi are the aggregate membrane potentials of pyramidal, excitatory, slow and fast inhibitory neurons, respectively.}
+	\label{fig: AllStates}
+\end{figure}
+
+
+It is clear that the estimation procedure is capable of tracking the model states well. However, for these simulation it is assumed that the model parameters are known. For the brain this is clearly untrue. Therefore the estimation of model parameters is next considered. 
+
+Initially only the excitability model parameters is estimated, following this the slow and fast inhibition parameters are estimated. The results for this estimation of parameters are demonstrated in figure~\ref{fig: AllParameters}.
+
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_3PE_10_N_10mV_AP.pdf}
+		\caption{Estimation results when model parameters are considered to be slow states. A, B and G are variables describing the excitatory, slow and fast inhibitory gains, respectively.}
+	\label{fig: AllParameters}
+\end{figure}
+
+Next the issue of what estimation method should be used is considered. To determine this the results from assuming a higher model uncertainty are compared to the results when the input is modelled as an estimated state. The results are shown in figures~\ref{fig: UKFP3_1}-\ref{fig: UKFP4_2IN}
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_Sim_4_P_3PE_10_N_10mV_AP.pdf}
+		\caption{Estimation results when stochastic input considered to increase the model uncertainty.} 
+	\label{fig: UKFP3_1}
+\end{figure}
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_Sim_4_P_4PE_10_N_10mV_AP.pdf}
+		\caption{Estimation results when stochastic input is estimated.}
+	\label{fig: UKFP4_1}
+\end{figure}
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_Sim_4_P_4PE_10_N_10mV_Input.pdf}
+		\caption{Estimation of stochastic input.}
+	\label{fig: UKFP4_1IN}
+\end{figure}
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_Sim_8_P_3PE_10_N_10mV_AP.pdf}
+		\caption{Estimation results when stochastic input considered to increase the model uncertainty.} 
+	\label{fig: UKFP3_2}
+\end{figure}
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_Sim_8_P_4PE_10_N_10mV_AP.pdf}
+				\caption{Estimation results when stochastic input is estimated.}
+	\label{fig: UKFP4_2}
+\end{figure}
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_Sim_8_P_4PE_10_N_10mV_Input.pdf}
+	   \caption{Estimation of stochastic input.}
+	\label{fig: UKFP4_2IN}
+\end{figure}
+
+
+For the estimation procedures above it was assume that the Gaussian noise added to the simulated signal was small, for the simulation following the effect of varying the noise level on estimation results is considered. The results are shown in figure~\ref{fig: UKFP4_N100}=\ref{fig: UKFP4_N1000}.
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_100mV_AP.pdf}
+		\caption{Estimation results when Gaussian noise added to the observations is increased to 100mV.}
+	\label{fig: UKFP4_N100}
+\end{figure}
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_f=2048_A_5_B_10_G_15_DC_S_2_P_4PE_10_N_1000mV_AP.pdf}
+				\caption{Estimation results when Gaussian noise added to the observations is increased to 1V.}
+	\label{fig: UKFP4_N1000}
+\end{figure}
+ 
+Lastly the effect of parameters varying within a single simulation are determine the results for this are show in figure~\ref{fig: UKFVP}.
+
+\begin{figure}
+	\centering
+		\includegraphics{pdf/UKF_WM8_VP_f=2048_A_5_B_20_G_20_DC_S_2_P_4PE_10_N_10mV_AP.pdf}
+		\caption{Estimation results when model parameters vary within a single simulation.}
+	\label{fig: UKFVP}
+\end{figure}
+
+\section{Discussion}
+
+The UKF can be used to estimate parameter values from the neural mass model described by Wendling et al. under numerous conditions. The UKF can track parameter values within the specified physiological range well, and can do so under varying amounts of observation noise. It is also capable of tracking parameters when they vary within a single simulation.
+
+At present, we are in the process of implementing our planned experiments and will be using this method to estimate the slow states using the recorded data.
+
