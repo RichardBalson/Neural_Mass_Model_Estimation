@@ -1,10 +1,11 @@
-% script created by Richard Balson 01/03/2013
+% script created by Richard Balson 25/03/2013
 
 % description
 % ~~~~~~~~~~~
 % this script assignes all static variables, all staes and parameters are
 % initialised by realising a gaussin distribution with an assigned number
-% of standard deviations.
+% of standard deviations. Based on bounds of calculated using equations
+% described in parameter tracking paper.
 
 % last edit
 % ~~~~~~~~~
@@ -31,36 +32,18 @@ gain = [A B G];
 % Estimate initial state values for populations output voltage
 % ~~~~~~~~~~~~~~~~~`
 
-uncertainty_adjustment = dt;
+uncertainty_adjustment = 1;
 
-sigmoid_center = 6; %Center of sigmoid
+State_std_deviation = std(z(:,:));
 
-perc =0.1; % Maximum  percentage change for prpagation os states with one time step
+mean_state = mean(z(:,:));
 
-mean_state = initial_mean_calculation_WNM(C,sigmoid_center,perc,dt);
-
-% Estimate initial state standard deviation
-
-% ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-% Assume states will function within 2% and 98% of sigmoid firing rate bounds.
-
-lower_percentage=0.02;
-upper_percentage=0.98;
-
-max_sig =5; % Sigmoid upper bound
-min_sig = 0; % Sigmoid lower bound
-
-sigmoid_gradient = .56; % Sigmoid gradient
-
-t_state = 1e-1;% Set time for state to vary from one threshold to mean
-
-State_std_deviation = initial_std_deviation_calculation_WNM_F(mean_state,C,max_sig,min_sig,lower_percentage,upper_percentage,...
-    sigmoid_gradient,t_state,sigmoid_center,Ds,dt);
 
 % Gaussian State realisation
 
 State_sigma = State_std_deviation/number_of_sigma;
+
+State_sigma = repmat(State_sigma,8,1);
 
 Gauss_state = mean_state + State_sigma(1,:).*randn(1,8);
 

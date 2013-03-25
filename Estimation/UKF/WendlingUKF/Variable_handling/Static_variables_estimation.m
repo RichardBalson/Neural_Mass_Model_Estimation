@@ -75,7 +75,7 @@ frequency = sampling_frequency; % Define the frequency for estimation
 
 dt = 1/frequency; % Specify the time period over which estimates will be made
 
- variance_adjustment = dt;%sqrt(dt); %  This parameter is used to adjust the variance of states ccording to the sampling frequency
+variance_adjustment = sqrt(dt);%sqrt(dt); %  This parameter is used to adjust the variance of states ccording to the sampling frequency
 
 % Number of sigma points
 % ~~~~~~~~~~~~~~~~~~~

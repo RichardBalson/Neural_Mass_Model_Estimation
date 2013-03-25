@@ -35,15 +35,16 @@ system_dependent('setprecision',24); % Set the precision of accuracy in order to
 % Simulation decision
 % ~~~~~~~~~~~~~~~~~
 
-Simulation_number = 10;
+Simulation_number = 100;
 
 MeanCheckTStart = 1;
 
+StepbyStepCheck =0; % Check how prediction and correction steps are working on a plot
 
 
 for q = 1:Simulation_number
 
-simulate =1; % Decide whether to simulate model output or use previous results if simulate is equal to 1 then observations for estimatio purposes are resimulated
+simulate =0; % Decide whether to simulate model output or use previous results if simulate is equal to 1 then observations for estimatio purposes are resimulated
 if (simulate ==1)
     
     number_of_sigma_input = 4; % Used to determine standard deviation of input if  1: 68.27% of realisations within physiolgical range, 2: 95.45, 3: 99.73 4: 99.994
@@ -62,7 +63,7 @@ if (simulate ==1)
     % 2002 and stnadard deviation that satisfies
     % number_of_sigma_input
     Wendling_Model_Simulation; % Simulate states and output of the extended neural mass model
-    save Wendling_out_cp_gauss_F output8 z normalised_gaussian_input sampling_frequency stochastic MVI tcon C frequency_limits number_of_sigma_input Input_mean_variation meanf% Save relevant parameters for future use
+    save Wendling_out_cp_gauss_R output8 z normalised_gaussian_input sampling_frequency stochastic MVI tcon C frequency_limits number_of_sigma_input Input_mean_variation meanf% Save relevant parameters for future use
     % output8 contains the simulated
     % model output; normalised_gaussian
     % input contains the input to the
@@ -77,7 +78,7 @@ if (simulate ==1)
     % frequency_limits the limits for
     % the input frequency
 else
-    load Wendling_out_cp_gauss_F output8 z normalised_gaussian_input sampling_frequency stochastic MVI tcon C frequency_limits number_of_sigma_input Input_mean_variation meanf% Load model parameters from previous simulations
+    load Wendling_out_cp_gauss_R output8 z normalised_gaussian_input sampling_frequency stochastic MVI tcon C frequency_limits number_of_sigma_input Input_mean_variation meanf% Load model parameters from previous simulations
 end
 
 % Dynamic variables
@@ -102,6 +103,7 @@ Dy =1; % Number of observable outputs from the simulation
 Parameter_initialisation = 0; % 0 for parameters to be initialised by Gauss distribution
                               % 1 for parameters to be initialsed as a
                               % percetage error from actual values
+                              
 
 EstStart = 0.25; % Specify the duration after simulation start when estimation should start. This allows removal of all transients.
 
@@ -113,7 +115,7 @@ kappa =0; % Varibale used to define the relative contribution of the mean on the
 
 Base_state_uncertainty = 1e-3; % Inherent state uncertainty due to model error
 
-Variable_state_uncertainty = 1e-3; % Uncertianty due to stochastic input
+Variable_state_uncertainty = 1e-3; % 1e-3 Uncertianty due to stochastic input
 
 Base_parameter_uncertainty = 1e-3; % Inherent parameter uncertainty due to model error
 
@@ -164,7 +166,7 @@ tstart =0; % Starting time for zoom
 
 zoom = 10; % Duration of zoom
 
-NoiseIn = 1e-2;% Base 1e-2
+NoiseIn = 1e-5;% Base 1e-2
 
 % Simulated signal data mV
 % ~~~~~~~~~~~~~~~~
@@ -193,7 +195,7 @@ Static_variables_estimation;
 p=length(Y);
 while ((p==length(Y)) && ((X(Ds+Dk+1,1,p) <Min(1)+1) || (X(Ds+Dk+1,1,p) >Max(1)-1)) && ((X(Ds+Dk+2,1,p) <Min(2)+1) || (X(Ds+Dk+2,1,p) >Max(2)-1))&& ((X(Ds+Dk+3,1,p) <Min(3)+1) || (X(Ds+Dk+3,1,p) >Max(3)-1))) 
 
-Initialise_Parameters_and_covariances;
+Initialise_Parameters_and_covariances1;
 
 %%
 
@@ -245,6 +247,45 @@ for p =1:length(Y)
     %     Pxxn(7,7) = Input_var1;
     
     [X(:,1,p+1) Pxx(:,:,p+1)] = Kalman(ExpX(:,p), ExpY(:,p), Y(p), Pxxn, Pxyn, Pyyn);
+    if StepbyStepCheck==1
+        stepn = 1:p;
+        stepC = 0:p;
+        figure % Plot the expected value of Y and the observed Y
+            plot(stepn,Y(1:p),'k');
+            hold on
+            plot(stepn, ExpY(:,1:p));
+            hold on
+            plot(stepC,X(2,1:p+1)-C(4)*X(3,1:p+1)-X(4,1:p+1),'r')
+            PxxE(:,:,stepn(end)) = Pxxn;
+            for zz = 1:8
+            figure
+
+            for li = stepn
+               ernE(li) = ExpX(zz,li) - PxxE(zz,zz,li);
+               erpE(li) = ExpX(zz,li) + PxxE(zz,zz,li);
+            end
+            for li = stepC+1
+               ern(li) = X(zz,li) - Pxx(zz,zz,li);
+               erp(li) = X(zz,li) + Pxx(zz,zz,li);
+            end
+            plot(stepn, ExpX(zz,1:p),'b');
+            hold on
+            plot(stepn,z(EstStart_Sample:EstStart_Sample+p-1,zz),'k');
+            hold on 
+            plot(stepC, X(zz,1:p+1),'r');
+            hold on
+            plot(stepC, ern(1:p+1),'g+');
+            hold on
+            plot(stepC,  erp(1:p+1),'g+');
+            hold on
+            plot(stepn,  erpE(1:p),'m+');
+            hold on
+            plot(stepn,  ernE(1:p),'m+'); 
+            end
+        pause
+        close all
+    end
+        
     
     %     Pxx(:,:,p+1) = Pxx(:,:,p+1) + Pxx(:,:,1);n
     
